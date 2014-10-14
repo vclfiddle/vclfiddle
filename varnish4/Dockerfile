@@ -1,0 +1,17 @@
+FROM ubuntu:14.04.1
+MAINTAINER vclfiddle.com <support@vclfiddle.com>
+
+RUN apt-get update
+RUN apt-get install --assume-yes apt-transport-https curl
+RUN curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
+RUN echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> /etc/apt/sources.list.d/varnish-cache.list
+RUN apt-get update
+RUN apt-get install --assume-yes varnish=4.0.2-1~trusty
+
+#ADD build.sh /build.sh
+#RUN /build.sh
+#TODO change maintainer to vclfiddle.net
+
+VOLUME ["/fiddle"]
+ADD run.sh /run.sh
+CMD ["/run.sh"]
