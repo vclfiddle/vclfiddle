@@ -34,6 +34,7 @@ module.exports = {
     var workingDir = temp.mkdirSync('fiddle');
     fs.writeFileSync(path.join(workingDir, 'default.vcl'), req.body.vcl);
 
+    var requestCount = 0;
     if (parsedHar && parsedHar.log.entries.length > 0) {
 
       parsedHar.log.entries.forEach(function (entry, index) {
@@ -54,8 +55,17 @@ module.exports = {
             }
           });
           request += '\r\n';
-          fs.writeFileSync(path.join(workingDir, 'request_' + index), request); // TODO zero-pad index for sorting
+          fs.writeFileSync(path.join(workingDir, 'request_' + requestCount), request); // TODO zero-pad index for sorting
+          requestCount++;
         }
+      });
+    }
+
+    if (requestCount == 0) {
+      return res.view('vcl/index', {
+        vcl: req.body.vcl,
+        har: har,
+        log: 'HAR does not contain any support entry requests.'
       });
     }
 
