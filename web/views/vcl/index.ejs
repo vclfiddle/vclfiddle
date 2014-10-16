@@ -86,11 +86,11 @@
 <script src="/CodeMirror/codemirror.js"></script>
 <script src="/CodeMirror/mode/javascript/javascript.js"></script>
 <script>
-  CodeMirror.fromTextArea(document.getElementById("vcl"), { lineNumbers: true, mode: {name: "javascript", json: true} });
-  CodeMirror.fromTextArea(document.getElementById("har"), { lineNumbers: true, mode: {name: "javascript", json: true} });
+  var vcl = CodeMirror.fromTextArea(document.getElementById("vcl"), { lineNumbers: true, mode: {name: "javascript", json: true} });
+  var har = CodeMirror.fromTextArea(document.getElementById("har"), { lineNumbers: true, mode: {name: "javascript", json: true} });
   CodeMirror.fromTextArea(document.getElementById("varnishlog"), { lineNumbers: true, mode: {name: "javascript", json: true}, readOnly: true });
   CodeMirror.fromTextArea(document.getElementById("transactions"), { lineNumbers: true, mode: {name: "javascript", json: true}, readOnly: true });
-  $("#run").click(function (e) {e.preventDefault();$.post( "/vcl/run", $( "#input" ).serialize() );});
+  $("#run").click(function (e) {e.preventDefault(); vcl.save(); har.save(); $.post( "/vcl/run", $( "#input" ).serialize() );});
   $("#save").click(function (e) {e.preventDefault();});
   $("#share").click(function (e) {e.preventDefault();});
 
