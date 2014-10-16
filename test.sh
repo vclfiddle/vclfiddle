@@ -11,10 +11,18 @@ echo -e "GET / HTTP/1.1\r\nHost: www.vclfiddle.net\r\n\r\n" >$TEST_DIR/request_0
 cp $REPO_ROOT/v4-test.vcl $TEST_DIR/default.vcl
 
 sudo docker run --rm --volume=$TEST_DIR:/fiddle varnish4
-
 echo $TEST_DIR
 ls -alF $TEST_DIR
+
+echo "debug.log:"
 cat $TEST_DIR/debug.log
+
+echo "run.log:"
+cat $TEST_DIR/run.log
+
+echo "varnishlog:"
+cat $TEST_DIR/varnishlog
+
 # TODO rm $TEST_DIR
 
 # docker run --rm -ti varnish4 /bin/bash
