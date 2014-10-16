@@ -83,10 +83,10 @@ function runContainer (dirPath, callback) {
 
 function readOutputFiles(dirPath, callback) {
 
-  fs.readFile(path.join(dirPath, 'run.log'), function (err, runlog) {
+  fs.readFile(path.join(dirPath, 'run.log'), { encoding: "utf8" }, function (err, runlog) {
     if (err) return callback(err);
 
-    fs.readFile(path.join(dirPath, 'varnishlog'), function (err, varnishlog) {
+    fs.readFile(path.join(dirPath, 'varnishlog'), { encoding: "utf8" }, function (err, varnishlog) {
 
       callback(null, {runlog: runlog, varnishlog: varnishlog});
 

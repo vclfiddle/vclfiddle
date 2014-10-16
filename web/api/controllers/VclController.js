@@ -39,7 +39,7 @@ module.exports = {
 
     ContainerService.replayHarWithVcl(parsedHar, vcl, function (err, output) {
 
-      var log = output.varnishlog;
+      var log = '';
       if (err) {
         log = 'Error: ' + err;
       } else if (output.runlog.length > 0) {
@@ -48,12 +48,11 @@ module.exports = {
         log = output.varnishlog; // TODO parse and format
       }
 
-      return res.view('vcl/index', {
+      return res.ok({
         vcl: vcl,
         har: har,
         log: log
-      });
-
+      }, 'vcl/index');
 
     });
 
