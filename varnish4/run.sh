@@ -1,32 +1,31 @@
 #!/bin/bash
 
-echo "Compiling VCL" >>/fiddle/debug.log
-/usr/sbin/varnishd -C -f /fiddle/default.vcl >/fiddle/vcl.c 2>>/fiddle/run.log || exit $?
-echo "Compiled VCL" >>/fiddle/debug.log
+function debuglog {
+  echo "$(date '+%Y-%m-%d %T.%3N') $@" >>//fiddle/debug.log
+}
 
-echo "Starting varnishd" >>/fiddle/debug.log
-/usr/sbin/varnishd -a 127.0.0.1:80 -f /fiddle/default.vcl -P /run/varnishd.pid 2>&1 >>/fiddle/run.log || exit $?
-echo "Started varnishd" >>/fiddle/debug.log
+function varnishcommand {
+  debuglog "Executing Varnish command: $@"
+  /usr/bin/varnishadm -T 127.0.0.1:6082 -S /etc/varnish/secret $@ 2>>/fiddle/run.log || exit $?
+  debuglog "Executed Varnish command: $@"
+}
 
-# TODO allow warmup. detect ready.
-sleep 2
+debuglog "Starting varnishd"
+/usr/sbin/varnishd -a 127.0.0.1:80 -b 127.0.0.1:8080 -T 127.0.0.1:6082 -S /etc/varnish/secret -P /run/varnishd.pid 2>&1 >>/fiddle/run.log || exit $?
+debuglog "Started varnishd"
 
-echo "Starting varnishlog" >>/fiddle/debug.log
+varnishcommand vcl.load fiddle /fiddle/default.vcl
+varnishcommand vcl.use fiddle
+
+debuglog "Starting varnishlog"
 varnishlog -D -v -w /fiddle/varnishlog -P /run/varnishlog.pid 2>&1 >>/fiddle/run.log || exit $?
-echo "Started varnishlog" >>/fiddle/debug.log
-sleep 2
+debuglog "Started varnishlog"
 
-echo "Executing requests" >>/fiddle/debug.log
+debuglog "Executing requests"
 find /fiddle -name request_* -maxdepth 1 -exec /bin/sh -c 'cat {}  | nc 127.0.0.1 80' \; >/dev/null
-# TODO replay requests HAR twice here
-echo "Executed requests" >>/fiddle/debug.log
+debuglog "Executed requests"
 
-echo "Flushing varnishlog" >>/fiddle/debug.log
+debuglog "Flushing varnishlog"
 kill -s SIGUSR1 $(cat /run/varnishlog.pid)
-sleep 2 # TODO find a better way to wait for flush
 
-echo "Killing varnishlog and varnishd" >>/fiddle/debug.log
-kill -s SIGKILL $(cat /run/varnishlog.pid)
-kill -s SIGKILL $(cat /run/varnishd.pid)
-
-echo "Done" >>/fiddle/debug.log
+debuglog "Done"
