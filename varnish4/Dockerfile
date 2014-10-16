@@ -1,5 +1,5 @@
 FROM ubuntu:14.04.1
-MAINTAINER vclfiddle.com <support@vclfiddle.com>
+MAINTAINER vclfiddle.net <support@vclfiddle.net>
 
 RUN apt-get update
 RUN apt-get install --assume-yes apt-transport-https curl
@@ -10,7 +10,6 @@ RUN apt-get install --assume-yes varnish=4.0.2-1~trusty
 
 #ADD build.sh /build.sh
 #RUN /build.sh
-#TODO change maintainer to vclfiddle.net
 
 VOLUME ["/fiddle"]
 ADD run.sh /run.sh
