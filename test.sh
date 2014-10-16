@@ -14,6 +14,7 @@ sudo docker run --rm --volume=$TEST_DIR:/fiddle varnish4
 
 echo $TEST_DIR
 ls -alF $TEST_DIR
+cat $TEST_DIR/debug.log
 # TODO rm $TEST_DIR
 
 # docker run --rm -ti varnish4 /bin/bash
