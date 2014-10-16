@@ -90,7 +90,17 @@
   var har = CodeMirror.fromTextArea(document.getElementById("har"), { lineNumbers: true, mode: {name: "javascript", json: true} });
   CodeMirror.fromTextArea(document.getElementById("varnishlog"), { lineNumbers: true, mode: {name: "javascript", json: true}, readOnly: true });
   CodeMirror.fromTextArea(document.getElementById("transactions"), { lineNumbers: true, mode: {name: "javascript", json: true}, readOnly: true });
-  $("#run").click(function (e) {e.preventDefault(); vcl.save(); har.save(); $.post( "/vcl/run", $( "#input" ).serialize() );});
+  $("#run").click(function (e) {
+    e.preventDefault();
+    vcl.save();
+    har.save();
+    $.ajax({
+      type: "POST",
+      url: "/vcl/run",
+      data: $( "#input" ).serialize(),
+      headers: { Accept: "application/json; charset=utf-8"}
+    });
+  });
   $("#save").click(function (e) {e.preventDefault();});
   $("#share").click(function (e) {e.preventDefault();});
 
