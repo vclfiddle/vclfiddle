@@ -56,12 +56,12 @@
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
-            <div class="editor"><textarea class="form-control" id="vcl" name="vcl"><%= vcl %></textarea><label for="har" class="window-label">VCL</label></div>
+            <div class="editor"><textarea class="form-control" id="vcl" name="vcl"><%= vcl %></textarea><span class="window-label">VCL</span></div>
           </div>
         </div>
         <div class="col-md-6">
           <div class="form-group">
-            <div class="editor"><textarea class="form-control" id="har" name="har"></textarea><label for="har" class="window-label">HAR</label></div>
+            <div class="editor"><textarea class="form-control" id="har" name="har"></textarea><span class="window-label">HAR</span></div>
           </div>
         </div>
       </div>
@@ -69,12 +69,12 @@
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
-            <div class="editor"><textarea class="form-control" id="varnishlog"></textarea><label for="har" class="window-label">varnishlog</label></div>
+            <div class="editor"><textarea class="form-control" id="varnishlog"></textarea><span class="window-label">varnishlog</span></div>
           </div>
         </div>
         <div class="col-md-6">
           <div class="form-group">
-            <div class="editor"><textarea class="form-control" id="transactions"></textarea><label for="har" class="window-label">transactions</label></div>
+            <div class="editor"><textarea class="form-control" id="transactions"></textarea><span class="window-label">transactions</span></div>
           </div>
         </div>
       </div>
@@ -93,6 +93,14 @@
   $("#run").click(function (e) {e.preventDefault();$.post( "/vcl/run", $( "#input" ).serialize() );});
   $("#save").click(function (e) {e.preventDefault();});
   $("#share").click(function (e) {e.preventDefault();});
+
+  $( ".editor" )
+  .mouseenter(function() {
+    $( this ).find( ".window-label" ).fadeOut();
+  })
+  .mouseleave(function() {
+    $( this ).find( ".window-label" ).fadeIn();
+  });
 </script>
 <style>
   .editor {
