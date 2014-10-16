@@ -1,5 +1,9 @@
 #!/bin/bash
 
+echo "Compiling VCL" >>/fiddle/debug.log
+/usr/sbin/varnishd -C -f /fiddle/default.vcl >/fiddle/vcl.c 2>>/fiddle/run.log || exit $?
+echo "Compiled VCL" >>/fiddle/debug.log
+
 echo "Starting varnishd" >>/fiddle/debug.log
 /usr/sbin/varnishd -a 127.0.0.1:80 -f /fiddle/default.vcl -P /run/varnishd.pid 2>&1 >>/fiddle/run.log || exit $?
 echo "Started varnishd" >>/fiddle/debug.log
