@@ -1,0 +1,30 @@
+{
+  "log": {
+    "version": "1.2",
+    "creator": { "name": "human", "version": "1.0" },
+    "entries": [
+      {
+        "startedDateTime": "2014-10-15T05:18:59.186Z",
+        "time": 0,
+        "request": {
+          "method": "GET",
+          "url": "http://localhost:80/",
+          "httpVersion": "HTTP/1.1",
+          "headers": [
+            {
+              "name": "Host",
+              "value": "localhost:80"
+            }
+          ],
+          "queryString": [],
+          "cookies": [],
+          "headersSize": -1,
+          "bodySize": 0
+        },
+        "response": null,
+        "cache": null,
+        "timings": null
+      }
+    ]
+  }
+}
