@@ -1,4 +1,91 @@
-<form method="post" action="/vcl/run">
-  <textarea name="vcl"><%= vcl %></textarea>
-  <input type="submit" value="Run" />
-</form>
+    <header class="navbar navbar-static-top" style="background: #18A8DD">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a href="../" class="navbar-brand" style="color:white">vclFiddle</a>
+        </div>
+        <nav class="collapse navbar-collapse" role="navigation">
+          <ul class="nav navbar-nav nav-pills">
+            <li><a id="run">Run <span class="glyphicon glyphicon-play"></span></a></li>
+            <li><a href="#">Save <span class="glyphicon glyphicon-save"></span></a></li>
+            <li><a href="#">Share <span class="glyphicon glyphicon-share"></span></a></li>
+            <li><a href="#">Docs <span class="glyphicon glyphicon-question-sign"></span></a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-2">
+      <div class="dropdown">
+        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
+          Varnish 4.0.2
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+          <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Varnish 4.0.2</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Varnish 4.0.1</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Varnish 3.0.5</a></li>
+          <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Varnish 3.0.4</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-md-10">
+      <form id="input">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="vcl">VCL</label>
+            <div class="editor"><textarea class="form-control" id="vcl" name="vcl"></textarea></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="har">HAR</label>
+            <div class="editor"><textarea class="form-control" id="har" name="har"></textarea></div>
+          </div>
+        </div>
+      </div>
+      </form>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="varnishlog">varnishlog</label>
+            <div class="editor"><textarea class="form-control" id="varnishlog"></textarea></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-group">
+            <label for="transactions">transactions</label>
+            <div class="editor"><textarea class="form-control" id="transactions"></textarea></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="/js/bootstrap.min.js" rel="stylesheet"></script>
+<script src="/CodeMirror/codemirror.js"></script>
+<script src="/CodeMirror/mode/javascript/javascript.js"></script>
+<script>
+  CodeMirror.fromTextArea(document.getElementById("vcl"), { lineNumbers: true, mode: {name: "javascript", json: true} });
+  CodeMirror.fromTextArea(document.getElementById("har"), { lineNumbers: true, mode: {name: "javascript", json: true} });
+  CodeMirror.fromTextArea(document.getElementById("varnishlog"), { lineNumbers: true, mode: {name: "javascript", json: true}, readOnly: true });
+  CodeMirror.fromTextArea(document.getElementById("transactions"), { lineNumbers: true, mode: {name: "javascript", json: true}, readOnly: true });
+  $("#run").click(function () {$.post( "/vcl/run", $( "#input" ).serialize() );});
+</script>
+<style>
+  .editor {
+    border: 1px solid #C0C0C0;
+  }
+  .navbar-nav>li>a {
+    background: #1CC2FF;
+    color: white;
+  }
+  .nav-pills>li>a {
+    border-radius: 0;
+  }
+  .nav>li>a:hover {
+    color: #1CC2FF
+  };
+</style>
