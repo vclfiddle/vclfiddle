@@ -69,12 +69,12 @@ function runContainer (dirPath, callback) {
 
   var dockerTimeoutMillseconds = 30 * 1000;
   var dockerImageName = 'varnish4';
-  var dockerArgs = ['run', '--rm', '--volume=' + workingDir + ':/fiddle', dockerImageName];
+  var dockerArgs = ['run', '--rm', '--volume=' + dirPath + ':/fiddle', dockerImageName];
   child_process.execFile('/usr/bin/docker', dockerArgs, {timeout: dockerTimeoutMillseconds}, function(err, stdout, stderr) {
     if (err) return callback(err);
 
-    log.debug('Docker stdout: ' + stdout);
-    log.error('Docker stderr: ' + stderr);
+    sails.log.debug('Docker stdout: ' + stdout);
+    sails.log.error('Docker stderr: ' + stderr);
 
     callback(null);
   });
@@ -96,7 +96,7 @@ function readOutputFiles(dirPath, callback) {
 
 }
 
-modules.exports = {
+module.exports = {
 
   replayHarWithVcl: function (harObject, vclText, callback) {
     allRequests = convertHarEntriesToRequests(harObject); // TODO move this function implementation to another service
@@ -108,7 +108,7 @@ modules.exports = {
 
       if (allRequests.requests.length == 0) return callback('HAR does not contain any supported entry requests');
 
-      writeInputFiles(dirPath, allRequests.requests, function (err) {
+      writeInputFiles(dirPath, allRequests.requests, vclText, function (err) {
 
         if (err) return callback(err);
 
@@ -120,7 +120,7 @@ modules.exports = {
 
             if (err) return callback(err);
 
-            rimraf(dirPath); // TODO clean up old failed temp dirs after investigation
+            rimraf(dirPath, function () {}); // TODO clean up old failed temp dirs after investigation
 
             callback(null, output);
 
