@@ -56,14 +56,12 @@
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
-            <label for="vcl">VCL</label>
-            <div class="editor"><textarea class="form-control" id="vcl" name="vcl"><%= vcl %></textarea></div>
+            <div class="editor"><textarea class="form-control" id="vcl" name="vcl"><%= vcl %></textarea><label for="har" class="window-label">VCL</label></div>
           </div>
         </div>
         <div class="col-md-6">
           <div class="form-group">
-            <label for="har">HAR</label>
-            <div class="editor"><textarea class="form-control" id="har" name="har"></textarea></div>
+            <div class="editor"><textarea class="form-control" id="har" name="har"></textarea><label for="har" class="window-label">HAR</label></div>
           </div>
         </div>
       </div>
@@ -71,14 +69,12 @@
       <div class="row">
         <div class="col-md-6">
           <div class="form-group">
-            <label for="varnishlog">varnishlog</label>
-            <div class="editor"><textarea class="form-control" id="varnishlog"></textarea></div>
+            <div class="editor"><textarea class="form-control" id="varnishlog"></textarea><label for="har" class="window-label">varnishlog</label></div>
           </div>
         </div>
         <div class="col-md-6">
           <div class="form-group">
-            <label for="transactions">transactions</label>
-            <div class="editor"><textarea class="form-control" id="transactions"></textarea></div>
+            <div class="editor"><textarea class="form-control" id="transactions"></textarea><label for="har" class="window-label">transactions</label></div>
           </div>
         </div>
       </div>
@@ -111,5 +107,10 @@
   }
   .nav>li>a:hover {
     color: #1CC2FF
-  };
+  }
+  .window-label {
+    position: absolute;
+    top: 10px;
+    right: 30px;
+  }
 </style>
