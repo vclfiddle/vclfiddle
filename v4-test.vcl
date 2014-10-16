@@ -1,7 +1,7 @@
 vcl 4.0;
 
 backend default {
-    .host = "74.125.237.180"; # TODO handle dns which resolves to multiple IPs like "www.google.com";
+    .host = "www.vclfiddle.net"; # TODO handle dns which resolves to multiple IPs like "www.google.com";
     .port = "80";
 }
 
