@@ -48,12 +48,11 @@ module.exports = {
         log = output.varnishlog; // TODO parse and format
       }
 
-      return res.view('vcl/index', {
+      return res.ok({
         vcl: vcl,
         har: har,
         log: log
-      });
-
+      }, 'vcl/index');
 
     });
 
