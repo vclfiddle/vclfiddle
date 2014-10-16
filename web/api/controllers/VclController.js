@@ -21,96 +21,41 @@ module.exports = {
   },
 
   run: function (req, res) {
+    var vcl = req.body.vcl;
     var har = req.body.har;
-    var log = "WOO!";
 
     try {
       var parsedHar = JSON.parse(har);
-      var har = JSON.stringify(parsedHar, null, '  ');
+      har = JSON.stringify(parsedHar, null, '  ');
     } catch (ex) {
-      log = 'Failed to parse HAR. ' + ex;
+
+      return res.view('vcl/index', {
+        vcl: vcl,
+        har: har,
+        log: 'Failed to parse HAR. ' + ex
+      });
+
     }
 
-    var workingDir = temp.mkdirSync('fiddle');
-    fs.writeFileSync(path.join(workingDir, 'default.vcl'), req.body.vcl);
+    ContainerService.replayHarWithVcl(parsedHar, vcl, function (err, output) {
 
-    var requestCount = 0;
-    if (parsedHar && parsedHar.log.entries.length > 0) {
-
-      parsedHar.log.entries.forEach(function (entry, index) {
-        var parsedUrl = url.parse(entry.request.url);
-        if (parsedUrl.protocol != 'http:') {
-          sails.log('Entry ' + index + ' protocol not supported: ' + parsedUrl.protocol);
-        } else if (entry.request.httpVersion != 'HTTP/1.0' && entry.request.httpVersion != 'HTTP/1.1') {
-          sails.log('Entry ' + index + ' HTTP version not supported: ' + entry.request.httpVersion);
-        } else if (entry.request.method != 'GET') {
-          sails.log('Entry ' + index + ' method not supported yet: ' + entry.request.method);
-        } else {
-          var request = entry.request.method + ' ' + parsedUrl.path + ' ' + entry.request.httpVersion + '\r\n';
-          entry.request.headers.forEach(function (header) {
-            if (header.name.toLowerCase() == 'connection') {
-              sails.log('Entry ' + index + ' "connection" request header not supported yet.');
-            } else {
-              request += header.name + ': ' + header.value + '\r\n';
-            }
-          });
-          request += '\r\n';
-          fs.writeFileSync(path.join(workingDir, 'request_' + requestCount), request); // TODO zero-pad index for sorting
-          requestCount++;
-        }
-      });
-    }
-
-    if (requestCount == 0) {
-      return res.view('vcl/index', {
-        vcl: req.body.vcl,
-        har: har,
-        log: 'HAR does not contain any support entry requests.'
-      });
-    }
-
-    var dockerTimeoutMillseconds = 30 * 1000;
-    var dockerImageName = 'varnish4';
-    //var dockerArgs = ['run', '--rm', '--tty', '--volume=' + workingDir + ':/fiddle', dockerImageName];
-    //child_process.execFile('/usr/bin/docker', dockerArgs, {timeout: dockerTimeoutMillseconds}, function(err, stdout, stderr) {
-    //var dockerArgs = 'run --rm --volume=' + workingDir + ':/fiddle ' + dockerImageName;
-    //child_process.exec('/usr/bin/docker ' + dockerArgs, {timeout: dockerTimeoutMillseconds}, function(err, stdout, stderr) {
-    var dockerArgs = ['run', '--rm', '--volume=' + workingDir + ':/fiddle', dockerImageName];
-    dockerProcess = child_process.spawn('/usr/bin/docker', dockerArgs);
-    dockerProcess.on('error', function(err) {
-      log = 'Docker failed. ' + err;
-      return res.view('vcl/index', {
-        vcl: req.body.vcl,
-        har: har,
-        log: log
-      });
-    });
-    dockerProcess.on('exit', function(code, signal) {
-      log = 'Yeehah! ' + workingDir;
-      return res.view('vcl/index', {
-        vcl: req.body.vcl,
-        har: har,
-        log: log
-      });
-
-    });
-
-    var junk = function (err, stdout, stderr) {
+      var log = output.varnishlog;
       if (err) {
-        log = 'Docker failed. ' + err;
+        log = 'Error: ' + err;
+      } else if (output.runlog.length > 0) {
+        log = 'Error: ' + output.runlog;
       } else {
-        log = 'Yeehah! ' + workingDir;
+        log = output.varnishlog; // TODO parse and format
       }
 
-      // TODO rimraf workingdir
-
       return res.view('vcl/index', {
-        vcl: req.body.vcl,
+        vcl: vcl,
         har: har,
         log: log
       });
 
-    };
+
+    });
 
   }
 
