@@ -9,3 +9,6 @@ sudo apt-get install --assume-yes nodejs
 
 # install sails.js
 npm install --global sails@0.10.5
+
+rsync -av /vagrant/web /var/web
+pushd /var/web && npm install && popd
