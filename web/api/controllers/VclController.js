@@ -12,7 +12,7 @@ var url = require('url');
 
 module.exports = {
 	index: function (req, res) {
-    const defaultVcl = 'backend default { .host = "www.vclfiddle.net"; .port = 80; }';
+    const defaultVcl = 'vcl 4.0; backend default { .host = "www.vclfiddle.net"; .port = "80"; }';
     return res.view({
       vcl: defaultVcl,
       har: '',
