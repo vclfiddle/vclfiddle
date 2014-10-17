@@ -22,6 +22,7 @@ pushd /var/web && sudo npm install && popd
 sudo docker build --force-rm --tag="varnish4" $SCRIPTROOT/varnish4/
 
 # install the setuid run-varnish-container script
+sudo apt-get install --assume-yes gcc
 sudo mkdir --parents /opt/vclfiddle/
 sudo gcc $SCRIPTROOT/run-varnish-container.c -o /opt/vclfiddle/run-varnish-container
 sudo cp $SCRIPTROOT/run-varnish-container.pl /opt/vclfiddle/run-varnish-container.pl
