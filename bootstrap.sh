@@ -11,7 +11,7 @@ sudo apt-get install --assume-yes nodejs
 npm install --global sails@0.10.5
 
 # install the web app
-rsync -av /vagrant/web /var/web
+rsync -av /vagrant/web/ /var/web/
 pushd /var/web && npm install && popd
 
 # build the Varnish docker image
