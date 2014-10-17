@@ -69,8 +69,7 @@ function runContainer (dirPath, callback) {
 
   var dockerTimeoutMillseconds = 30 * 1000;
   var dockerImageName = 'varnish4';
-  var dockerArgs = ['run', '--rm', '--volume=' + dirPath + ':/fiddle', dockerImageName];
-  child_process.execFile('/usr/bin/docker', dockerArgs, {timeout: dockerTimeoutMillseconds}, function(err, stdout, stderr) {
+  child_process.execFile('/opt/vclfiddle/run-varnish-container', [dockerImageName, dirPath], {timeout: dockerTimeoutMillseconds}, function(err, stdout, stderr) {
     if (err) return callback(err);
 
     sails.log.debug('Docker stdout: ' + stdout);
