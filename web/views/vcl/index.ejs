@@ -55,29 +55,39 @@
       <form id="input">
       <div class="row">
         <div class="col-md-6">
-          <div class="form-group">
-            <div class="editor"><textarea class="form-control" id="vcl" name="vcl"><%= vcl %></textarea><span class="window-label">VCL</span></div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <div class="editor"><textarea class="form-control" id="vcl" name="vcl"><%= vcl %></textarea><span class="window-label">VCL</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <div class="editor"><textarea class="form-control" id="varnishlog"><%= log %></textarea><span class="window-label">varnishlog</span></div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="col-md-6">
-          <div class="form-group">
-            <div class="editor"><textarea class="form-control" id="har" name="har"><%= har %></textarea><span class="window-label">HAR</span></div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <div class="editor"><textarea class="form-control" id="har" name="har"><%= har %></textarea><span class="window-label">HAR</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <div class="form-group">
+                <div class="editor"><textarea class="form-control" id="transactions"></textarea><span class="window-label">transactions</span></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
       </form>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <div class="editor"><textarea class="form-control" id="varnishlog"><%= log %></textarea><span class="window-label">varnishlog</span></div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <div class="editor"><textarea class="form-control" id="transactions"></textarea><span class="window-label">transactions</span></div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </div>
