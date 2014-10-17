@@ -22,37 +22,43 @@ module.exports = {
 
   run: function (req, res) {
     var vcl = req.body.vcl;
-    var har = req.body.har;
 
-    try {
-      var parsedHar = JSON.parse(har);
-      har = JSON.stringify(parsedHar, null, '  ');
-    } catch (ex) {
+    RequestMetadataService.parseHar(req.body.har, function (err, har, allRequests) {
 
-      return res.view('vcl/index', {
-        vcl: vcl,
-        har: har,
-        log: 'Failed to parse HAR. ' + ex
-      });
-
-    }
-
-    ContainerService.replayHarWithVcl(parsedHar, vcl, function (err, output) {
-
-      var log = '';
       if (err) {
-        log = 'Error: ' + err;
-      } else if (output.runlog.length > 0) {
-        log = 'Error: ' + output.runlog;
-      } else {
-        log = output.varnishlog; // TODO parse and format
+        return res.ok({
+          vcl: vcl,
+          har: har,
+          log: 'Failed to parse HAR. ' + ex
+        }, 'vcl/index');
       }
 
-      return res.ok({
-        vcl: vcl,
-        har: har,
-        log: log
-      }, 'vcl/index');
+      if (allRequests.includedRequests.length == 0) {
+        return res.ok({
+          vcl: vcl,
+          har: har,
+          log: 'HAR does not contain any supported requests.'
+        }, 'vcl/index');
+      }
+
+      ContainerService.replayRequestsWithVcl(allRequests.includedRequests, vcl, function (err, output) {
+
+        var log = '';
+        if (err) {
+          log = 'Error: ' + err;
+        } else if (output.runlog.length > 0) {
+          log = 'Error: ' + output.runlog;
+        } else {
+          log = output.varnishlog; // TODO parse and format
+        }
+
+        return res.ok({
+          vcl: vcl,
+          har: har,
+          log: log
+        }, 'vcl/index');
+
+      });
 
     });
 
