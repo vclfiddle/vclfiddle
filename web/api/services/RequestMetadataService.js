@@ -42,6 +42,38 @@ function generateCleanHarText (harObject) {
   return JSON.stringify(harObject, null, '  ');
 }
 
+function parseResponse(rawResponse) {
+  var lines = rawResponse.split(/\r\n/);
+  if (lines.length == 0) return null;
+  var responseLine = lines[0];
+  var match = responseLine.match(/^([^\s]+)\s(\d{3})\s*(.*)/);
+  if (!match) {
+    sails.log.debug('Unexpected response line: ' + responseLine);
+    return null;
+  }
+
+  var responseObject = {
+    protocol: match[1],
+    code: match[2],
+    comment: match[3],
+    headers: []
+  };
+
+  var lineIndex = 1;
+  while (lineIndex < lines.length) {
+    match = lines[lineIndex].match(/^([^:]+):(.*)/);
+    if (match) {
+      responseObject.headers.push({header: match[1], value: match[2]});
+    } else if (lines[lineIndex].length > 0) {
+      sails.log.debug('Unexpected header line: ' + lines[lineIndex]);
+    }
+    lineIndex++;
+  }
+  // TODO consider multi-line headers
+
+  return responseObject;
+}
+
 module.exports = {
 
   parseHar: function (rawHar, callback) {
@@ -57,6 +89,20 @@ module.exports = {
       generateCleanHarText(parsedHar),
       convertHarEntriesToRequests(parsedHar)
     );
+
+  },
+
+  correlateResults: function (includedRequests, responses, TODO_varnishlog, callback) {
+
+    var results = includedRequests.map(function (req, index) {
+      return {
+        request: req,
+        response: parseResponse(responses[index])
+      };
+    });
+
+    return results;
+    //callback(null, results);
 
   }
 
