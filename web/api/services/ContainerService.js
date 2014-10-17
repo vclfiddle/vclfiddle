@@ -53,7 +53,35 @@ function readOutputFiles(dirPath, callback) {
 
     fs.readFile(path.join(dirPath, 'varnishlog'), { encoding: "utf8" }, function (err, varnishlog) {
 
-      callback(null, {runlog: runlog, varnishlog: varnishlog});
+      fs.readdir(dirPath, function (err, files) {
+        if (err) return callback(err);
+
+        const responseFilePrefix = 'response_';
+        var responseFiles = files.filter(function (f) {
+          return f.slice(0, responseFilePrefix.length) == responseFilePrefix;
+        });
+
+        var responses = [];
+        var success = countdownCallback(responseFiles.length, function (err) {
+          if (err) return callback(err);
+          callback(null, {
+            runlog: runlog,
+            varnishlog: varnishlog,
+            responses: responses
+          });
+        });
+
+        responseFiles.forEach(function (f) {
+          var index = parseInt(f.slice(responseFilePrefix.length), 10);
+          fs.readFile(path.join(dirPath, f), { encoding: "utf8" }, function (err, response) {
+            if (err) return callback(err);
+            responses[index] = response;
+            success();
+          });
+
+        });
+
+      });
 
     });
 
