@@ -47,21 +47,21 @@ function countdownCallback(count, onZeroCallback) {
 
 function writeInputFiles (dirPath, requests, vclText, callback) {
 
-    fs.writeFile(path.join(dirPath, 'default.vcl'), vclText, function (err) {
-      if (err) return callback(err);
+  fs.writeFile(path.join(dirPath, 'default.vcl'), vclText, function (err) {
+    if (err) return callback(err);
 
-      var success = countdownCallback(requests.length, callback);
-      requests.forEach(function (r) {
+    var success = countdownCallback(requests.length, callback);
+    requests.forEach(function (r) {
 
-        var filename = 'request_' + ('000' + r.entryIndex).slice(-3);
-        fs.writeFile(path.join(dirPath, filename), r.payload, function (err) {
-          if (err) return callback(err);
-          success();
-        });
-
+      var filename = 'request_' + ('000' + r.entryIndex).slice(-3);
+      fs.writeFile(path.join(dirPath, filename), r.payload, function (err) {
+        if (err) return callback(err);
+        success();
       });
 
     });
+
+  });
 
 }
 
@@ -69,8 +69,7 @@ function runContainer (dirPath, callback) {
 
   var dockerTimeoutMillseconds = 30 * 1000;
   var dockerImageName = 'varnish4';
-  var dockerArgs = ['run', '--rm', '--volume=' + dirPath + ':/fiddle', dockerImageName];
-  child_process.execFile('/usr/bin/docker', dockerArgs, {timeout: dockerTimeoutMillseconds}, function(err, stdout, stderr) {
+  child_process.execFile('/opt/vclfiddle/run-varnish-container', [dockerImageName, dirPath], {timeout: dockerTimeoutMillseconds}, function(err, stdout, stderr) {
     if (err) return callback(err);
 
     sails.log.debug('Docker stdout: ' + stdout);
