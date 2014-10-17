@@ -17,9 +17,9 @@ function writeInputFiles (dirPath, requests, vclText, callback) {
     if (err) return callback(err);
 
     var success = countdownCallback(requests.length, callback);
-    requests.forEach(function (r) {
+    requests.forEach(function (r, index) {
 
-      var filename = 'request_' + ('000' + r.entryIndex).slice(-3);
+      var filename = 'request_' + ('000' + index).slice(-3);
       fs.writeFile(path.join(dirPath, filename), r.payload, function (err) {
         if (err) return callback(err);
         success();
