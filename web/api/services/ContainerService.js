@@ -9,9 +9,14 @@ function convertHarEntriesToRequests (harObject) {
   var requests = [];
   var excludedRequests = [];
 
+  var firstHost = null;
+
   harObject.log.entries.forEach(function (entry, index) {
     var parsedUrl = url.parse(entry.request.url);
-    if (parsedUrl.protocol != 'http:') {
+    if (firstHost == null) firstHost = parsedUrl.host;
+    if (parsedUrl.host != firstHost) {
+      excludedRequests.push({entryIndex: index, reason: 'Ignored', message: 'URL Host does not match first request: ' + parsedUrl.host});
+    } else if (parsedUrl.protocol != 'http:') {
       excludedRequests.push({entryIndex: index, reason: 'Unsupported', message: 'Protocol not supported: ' + parsedUrl.protocol});
     } else if (entry.request.httpVersion != 'HTTP/1.0' && entry.request.httpVersion != 'HTTP/1.1') {
       excludedRequests.push({entryIndex: index, reason: 'Unsupported', message: 'HTTP version not supported: ' + entry.request.httpVersion});
