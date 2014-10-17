@@ -44,18 +44,21 @@ module.exports = {
       ContainerService.replayRequestsWithVcl(allRequests.includedRequests, vcl, function (err, output) {
 
         var log = '';
+        var results = null;
         if (err) {
           log = 'Error: ' + err;
         } else if (output.runlog.length > 0) {
           log = 'Error: ' + output.runlog;
         } else {
           log = output.varnishlog; // TODO parse and format
+          results = RequestMetadataService.correlateResults(allRequests.includedRequests, output.responses, output.varnishlog, null);
         }
 
         return res.ok({
           vcl: vcl,
           har: har,
-          log: log
+          log: log,
+          results: results
         }, 'vcl/index');
 
       });
