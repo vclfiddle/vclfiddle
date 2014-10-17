@@ -10,6 +10,14 @@ function varnishcommand {
   debuglog "Executed Varnish command: $@"
 }
 
+function executerequest {
+  REQUEST_FILE=$1
+  debuglog "Executing request $REQUEST_FILE"
+  RESPONSE_FILE=$(basename $REQUEST_FILE)
+  RESPONSE_FILE=$(dirname $REQUEST_FILE)/response_${RESPONSE_FILE#request_}
+  cat $REQUEST_FILE  | nc 127.0.0.1 80 | sed -e '/^\s*$/,$d' >$RESPONSE_FILE
+}
+
 debuglog "Starting varnishd"
 /usr/sbin/varnishd -a 127.0.0.1:80 -b 127.0.0.1:8080 -T 127.0.0.1:6082 -S /etc/varnish/secret -P /run/varnishd.pid 2>&1 >>/fiddle/run.log || exit $?
 debuglog "Started varnishd"
@@ -22,7 +30,9 @@ varnishlog -D -v -w /fiddle/varnishlog -P /run/varnishlog.pid 2>&1 >>/fiddle/run
 debuglog "Started varnishlog"
 
 debuglog "Executing requests"
-find /fiddle -name request_* -maxdepth 1 -exec /bin/sh -c 'cat {}  | nc 127.0.0.1 80' \; >/dev/null
+for ITEM in /fiddle/request_*; do
+  executerequest $ITEM
+done
 debuglog "Executed requests"
 
 debuglog "Flushing varnishlog"
