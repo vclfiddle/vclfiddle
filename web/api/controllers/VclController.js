@@ -29,7 +29,7 @@ module.exports = {
         return res.ok({
           vcl: vcl,
           har: har,
-          log: 'Failed to parse HAR. ' + ex
+          log: 'Failed to parse HAR. ' + err
         }, 'vcl/index');
       }
 
