@@ -52,6 +52,7 @@ module.exports = {
         } else {
           log = output.varnishlog; // TODO parse and format
           results = RequestMetadataService.correlateResults(allRequests.includedRequests, output.responses, output.varnishlog, null);
+          results = results.concat(allRequests.excludedRequests.map(function (r) { return { request: r }; }));
         }
 
         return res.ok({
