@@ -63,7 +63,7 @@ function parseResponse(rawResponse) {
   while (lineIndex < lines.length) {
     match = lines[lineIndex].match(/^([^:]+):(.*)/);
     if (match) {
-      responseObject.headers.push({header: match[1], value: match[2]});
+      responseObject.headers.push({name: match[1], value: match[2]});
     } else if (lines[lineIndex].length > 0) {
       sails.log.debug('Unexpected header line: ' + lines[lineIndex]);
     }
