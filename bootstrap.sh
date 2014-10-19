@@ -5,14 +5,20 @@ SCRIPTROOT=$(pwd)
 popd >/dev/null
 
 # install docker
-curl -sSL https://get.docker.io/ubuntu/ | sudo sh
+if ! command -v docker >/dev/null; then
+  curl -sSL https://get.docker.io/ubuntu/ | sudo sh
+fi
 
 # install nodejs
-curl -sL https://deb.nodesource.com/setup | sudo bash -
-sudo apt-get install --assume-yes nodejs
+if ! command -v npm >/dev/null; then
+  curl -sL https://deb.nodesource.com/setup | sudo bash -
+  sudo apt-get install --assume-yes nodejs
+fi
 
 # install sails.js
-sudo npm install --global sails@0.10.5
+if ! command -v sails >/dev/null; then
+  sudo npm install --global sails@0.10.5
+fi
 
 # install the web app
 sudo rsync -av $SCRIPTROOT/web/ /var/web/
