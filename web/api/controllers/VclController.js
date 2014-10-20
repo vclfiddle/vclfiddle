@@ -41,6 +41,10 @@ module.exports = {
         }, 'vcl/index');
       }
 
+      if (!!req.body.dbl) {
+        allRequests.includedRequests = allRequests.includedRequests.concat(allRequests.includedRequests);
+      }
+
       ContainerService.replayRequestsWithVcl(allRequests.includedRequests, vcl, function (err, output) {
 
         var log = '';
