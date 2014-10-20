@@ -62,13 +62,19 @@ function readOutputFiles(dirPath, callback) {
         });
 
         var responses = [];
-        var success = countdownCallback(responseFiles.length, function (err) {
-          if (err) return callback(err);
+        var done = function () {
           callback(null, {
             runlog: runlog,
             varnishlog: varnishlog,
             responses: responses
           });
+        };
+
+        if (responseFiles.length == 0) return done();
+
+        var success = countdownCallback(responseFiles.length, function (err) {
+          if (err) return callback(err);
+          done();
         });
 
         responseFiles.forEach(function (f) {
