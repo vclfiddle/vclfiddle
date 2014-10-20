@@ -41,3 +41,6 @@ sudo npm install --global forever
 cd /var/www && forever start app.js
 
 # TODO install nginx on port 80 to proxy to sails 1337
+
+# test the app
+sudo npm install --global mocha
