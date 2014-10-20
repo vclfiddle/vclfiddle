@@ -111,6 +111,7 @@
       headers: { Accept: "application/json; charset=utf-8"}
     }).done(function( data ) {
       varnishlog.setValue(data.log);
+      har.setValue(data.har);
     });
   });
   $("#save").click(function (e) {e.preventDefault();});

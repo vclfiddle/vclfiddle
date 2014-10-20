@@ -3,40 +3,6 @@ var fs = require('fs');
 var path = require('path');
 var rimraf = require('rimraf');
 var temp = require('temp');
-var url = require('url');
-
-function convertHarEntriesToRequests (harObject) {
-  var requests = [];
-  var excludedRequests = [];
-
-  harObject.log.entries.forEach(function (entry, index) {
-    var parsedUrl = url.parse(entry.request.url);
-    if (parsedUrl.protocol != 'http:') {
-      excludedRequests.push({entryIndex: index, reason: 'Unsupported', message: 'Protocol not supported: ' + parsedUrl.protocol});
-    } else if (entry.request.httpVersion != 'HTTP/1.0' && entry.request.httpVersion != 'HTTP/1.1') {
-      excludedRequests.push({entryIndex: index, reason: 'Unsupported', message: 'HTTP version not supported: ' + entry.request.httpVersion});
-    } else if (entry.request.method != 'GET') {
-      excludedRequests.push({entryIndex: index, reason: 'Unsupported', message: 'Method not supported: ' + entry.request.method});
-    } else {
-      var warnings = [];
-      var payload = entry.request.method + ' ' + parsedUrl.path + ' ' + entry.request.httpVersion + '\r\n';
-      entry.request.headers.forEach(function (header) {
-        if (header.name.toLowerCase() == 'connection') {
-          warnings.push('Connection request header not supported.');
-        } else {
-          payload += header.name + ': ' + header.value + '\r\n';
-        }
-      });
-      payload += '\r\n';
-      requests.push({entryIndex: index, payload: payload, warnings: warnings});
-    }
-  });
-
-  return {
-    requests: requests,
-    excludedRequests: excludedRequests
-  };
-}
 
 function countdownCallback(count, onZeroCallback) {
   return function () {
@@ -47,21 +13,21 @@ function countdownCallback(count, onZeroCallback) {
 
 function writeInputFiles (dirPath, requests, vclText, callback) {
 
-    fs.writeFile(path.join(dirPath, 'default.vcl'), vclText, function (err) {
-      if (err) return callback(err);
+  fs.writeFile(path.join(dirPath, 'default.vcl'), vclText, function (err) {
+    if (err) return callback(err);
 
-      var success = countdownCallback(requests.length, callback);
-      requests.forEach(function (r) {
+    var success = countdownCallback(requests.length, callback);
+    requests.forEach(function (r, index) {
 
-        var filename = 'request_' + ('000' + r.entryIndex).slice(-3);
-        fs.writeFile(path.join(dirPath, filename), r.payload, function (err) {
-          if (err) return callback(err);
-          success();
-        });
-
+      var filename = 'request_' + ('000' + index).slice(-3);
+      fs.writeFile(path.join(dirPath, filename), r.payload, function (err) {
+        if (err) return callback(err);
+        success();
       });
 
     });
+
+  });
 
 }
 
@@ -69,8 +35,7 @@ function runContainer (dirPath, callback) {
 
   var dockerTimeoutMillseconds = 30 * 1000;
   var dockerImageName = 'varnish4';
-  var dockerArgs = ['run', '--rm', '--volume=' + dirPath + ':/fiddle', dockerImageName];
-  child_process.execFile('/usr/bin/docker', dockerArgs, {timeout: dockerTimeoutMillseconds}, function(err, stdout, stderr) {
+  child_process.execFile('/opt/vclfiddle/run-varnish-container', [dockerImageName, dirPath], {timeout: dockerTimeoutMillseconds}, function(err, stdout, stderr) {
     if (err) return callback(err);
 
     sails.log.debug('Docker stdout: ' + stdout);
@@ -88,7 +53,41 @@ function readOutputFiles(dirPath, callback) {
 
     fs.readFile(path.join(dirPath, 'varnishlog'), { encoding: "utf8" }, function (err, varnishlog) {
 
-      callback(null, {runlog: runlog, varnishlog: varnishlog});
+      fs.readdir(dirPath, function (err, files) {
+        if (err) return callback(err);
+
+        const responseFilePrefix = 'response_';
+        var responseFiles = files.filter(function (f) {
+          return f.slice(0, responseFilePrefix.length) == responseFilePrefix;
+        });
+
+        var responses = [];
+        var done = function () {
+          callback(null, {
+            runlog: runlog,
+            varnishlog: varnishlog,
+            responses: responses
+          });
+        };
+
+        if (responseFiles.length == 0) return done();
+
+        var success = countdownCallback(responseFiles.length, function (err) {
+          if (err) return callback(err);
+          done();
+        });
+
+        responseFiles.forEach(function (f) {
+          var index = parseInt(f.slice(responseFilePrefix.length), 10);
+          fs.readFile(path.join(dirPath, f), { encoding: "utf8" }, function (err, response) {
+            if (err) return callback(err);
+            responses[index] = response;
+            success();
+          });
+
+        });
+
+      });
 
     });
 
@@ -98,17 +97,15 @@ function readOutputFiles(dirPath, callback) {
 
 module.exports = {
 
-  replayHarWithVcl: function (harObject, vclText, callback) {
-    allRequests = convertHarEntriesToRequests(harObject); // TODO move this function implementation to another service
+  replayRequestsWithVcl: function (includedRequests, vclText, callback) {
 
     temp.mkdir('fiddle', function (err, dirPath) {
-      sails.log.debug()
 
       if (err) return callback(err);
 
-      if (allRequests.requests.length == 0) return callback('HAR does not contain any supported entry requests');
+      sails.log.debug('dirPath: ' + dirPath);
 
-      writeInputFiles(dirPath, allRequests.requests, vclText, function (err) {
+      writeInputFiles(dirPath, includedRequests, vclText, function (err) {
 
         if (err) return callback(err);
 
@@ -132,6 +129,9 @@ module.exports = {
 
     });
 
-  }
+  },
 
+  for_tests: {
+    readOutputFiles: readOutputFiles
+  }
 };

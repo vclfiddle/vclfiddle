@@ -25,9 +25,15 @@
     "grunt-contrib-less": "0.11.1",
     "grunt-contrib-coffee": "~0.10.1"
   },
+  "devDependencies": {
+    "chai": "1.9.2",
+    "mocha": "1.21.5",
+    "supertest": "0.14.0"
+  },
   "scripts": {
     "start": "node app.js",
-    "debug": "node debug app.js"
+    "debug": "node debug app.js",
+    "test": "mocha test --recursive"
   },
   "main": "app.js",
   "repository": {
