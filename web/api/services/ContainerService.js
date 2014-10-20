@@ -123,6 +123,9 @@ module.exports = {
 
     });
 
-  }
+  },
 
+  for_tests: {
+    readOutputFiles: readOutputFiles
+  }
 };
