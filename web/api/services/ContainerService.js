@@ -57,6 +57,7 @@ function readOutputFiles(dirPath, callback) {
   var result = {
     runlog: null,
     varnishlog: null,
+    varnishncsa: null,
     responses: []
   };
 
@@ -68,6 +69,12 @@ function readOutputFiles(dirPath, callback) {
   var varnishlogPromise = readFile(path.join(dirPath, 'varnishlog'), { encoding: "utf8" })
     .then(function (data) {
       result.varnishlog = data;
+    })
+    .catch(function (error) { /* swallow */ });
+
+  var varnishncsaPromise = readFile(path.join(dirPath, 'varnishncsa'), { encoding: "utf8" })
+    .then(function (data) {
+      result.varnishncsa = data;
     })
     .catch(function (error) { /* swallow */ });
 
@@ -89,7 +96,7 @@ function readOutputFiles(dirPath, callback) {
       );
     });
 
-  return Q.all([runlogPromise, varnishlogPromise, responsesPromise])
+  return Q.all([runlogPromise, varnishlogPromise, varnishncsaPromise, responsesPromise])
     .then(function () {
       return callback(null, result);
     })
