@@ -111,9 +111,13 @@ module.exports = {
   correlateResults: function (includedRequests, responses, TODO_varnishlog, callback) {
 
     var results = includedRequests.map(function (req, index) {
+      var response = parseResponse(responses[index]);
+      var vxidHeaders = response.headers.filter(function (e) { return e.name.toLowerCase() == 'x-varnish'; });
+      var vxid = vxidHeaders.length == 0 ? null : vxidHeaders[0].value;
       return {
         request: req,
-        response: parseResponse(responses[index])
+        response: response,
+        vxid: vxid
       };
     });
 
