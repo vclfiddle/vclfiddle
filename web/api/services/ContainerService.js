@@ -1,6 +1,7 @@
 var child_process = require('child_process');
 var fs = require('fs');
 var path = require('path');
+var Q = require('q');
 var rimraf = require('rimraf');
 var temp = require('temp');
 
@@ -48,50 +49,52 @@ function runContainer (dirPath, callback) {
 
 function readOutputFiles(dirPath, callback) {
 
-  fs.readFile(path.join(dirPath, 'run.log'), { encoding: "utf8" }, function (err, runlog) {
-    if (err) return callback(err);
+  var readdir = Q.denodeify(fs.readdir);
+  var readFile = Q.denodeify(fs.readFile);
 
-    fs.readFile(path.join(dirPath, 'varnishlog'), { encoding: "utf8" }, function (err, varnishlog) {
+  const responseFilePrefix = 'response_';
 
-      fs.readdir(dirPath, function (err, files) {
-        if (err) return callback(err);
+  var result = {
+    runlog: null,
+    varnishlog: null,
+    responses: []
+  };
 
-        const responseFilePrefix = 'response_';
-        var responseFiles = files.filter(function (f) {
-          return f.slice(0, responseFilePrefix.length) == responseFilePrefix;
-        });
-
-        var responses = [];
-        var done = function () {
-          callback(null, {
-            runlog: runlog,
-            varnishlog: varnishlog,
-            responses: responses
-          });
-        };
-
-        if (responseFiles.length == 0) return done();
-
-        var success = countdownCallback(responseFiles.length, function (err) {
-          if (err) return callback(err);
-          done();
-        });
-
-        responseFiles.forEach(function (f) {
-          var index = parseInt(f.slice(responseFilePrefix.length), 10);
-          fs.readFile(path.join(dirPath, f), { encoding: "utf8" }, function (err, response) {
-            if (err) return callback(err);
-            responses[index] = response;
-            success();
-          });
-
-        });
-
-      });
-
+  var runlogPromise = readFile(path.join(dirPath, 'run.log'), { encoding: "utf8" })
+    .then(function (data) {
+      result.runlog = data;
     });
 
-  });
+  var varnishlogPromise = readFile(path.join(dirPath, 'varnishlog'), { encoding: "utf8" })
+    .then(function (data) {
+      result.varnishlog = data;
+    })
+    .catch(function (error) { /* swallow */ });
+
+  var responsesPromise = readdir(dirPath)
+    .then(function (files) {
+        return files.filter(function (f) {
+          return f.slice(0, responseFilePrefix.length) == responseFilePrefix;
+        });
+    })
+    .then(function (files) {
+      return Q.all(
+        files.map(function (f) {
+          var index = parseInt(f.slice(responseFilePrefix.length), 10);
+          return readFile(path.join(dirPath, f), { encoding: "utf8" })
+            .then(function (data) {
+              result.responses[index] = data;
+            });
+        })
+      );
+    });
+
+  return Q.all([runlogPromise, varnishlogPromise, responsesPromise])
+    .then(function () {
+      return callback(null, result);
+    })
+    .catch(callback)
+    .done();
 
 }
 
