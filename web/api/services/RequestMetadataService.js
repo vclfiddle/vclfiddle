@@ -108,16 +108,46 @@ module.exports = {
 
   },
 
-  correlateResults: function (includedRequests, responses, TODO_varnishlog, callback) {
+  parseVarnish4NCSA: function (rawNcsa) {
+    if (!rawNcsa) return [];
+    var lines = rawNcsa.split(/\n/).filter(function (l) { return !!l; });
+    if (lines.length == 0) return [];
+
+    return lines.map(function (line) {
+
+      var result = {
+        vxid: null,
+        hitmiss: null,
+        handling: null,
+      };
+
+      var fields = line.split(/\s+/);
+      try {
+        if (fields.length >= 1) result.vxid = fields[0];
+        if (fields.length >= 5) result.hitmiss = fields[4];
+        if (fields.length >= 6) result.handling = fields[5];
+      } catch (ex) {
+        sails.log.debug('Failed to parse Varnish4 NCSA log line. ' + ex + '; ' + line);
+      }
+
+      if (result.vxid !== null) return result;
+
+    });
+  },
+
+  correlateResults: function (includedRequests, responses, parsedNcsa, callback) {
 
     var results = includedRequests.map(function (req, index) {
       var response = parseResponse(responses[index]);
-      var vxidHeaders = response.headers.filter(function (e) { return e.name.toLowerCase() == 'x-varnish'; });
-      var vxid = vxidHeaders.length == 0 ? null : vxidHeaders[0].value;
+      var vxidHeaders = response.headers.filter(function (e) { return e.name.toLowerCase() === 'x-varnish'; });
+      var vxid = vxidHeaders.length === 0 ? null : vxidHeaders[0].value;
+      var ncsaRecords = parsedNcsa.filter(function (r) { return r.vxid === vxid });
+      var ncsa = ncsaRecords.length === 0 ? null : ncsaRecords[0];
       return {
         request: req,
         response: response,
-        vxid: vxid
+        vxid: vxid,
+        ncsa: ncsa
       };
     });
 
