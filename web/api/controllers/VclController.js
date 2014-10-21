@@ -55,7 +55,8 @@ module.exports = {
           log = 'Error: ' + output.runlog;
         } else {
           log = output.varnishlog; // TODO parse and format
-          results = RequestMetadataService.correlateResults(allRequests.includedRequests, output.responses, output.varnishlog, null);
+          var parsedNcsa = RequestMetadataService.parseVarnish4NCSA(output.varnishncsa);
+          results = RequestMetadataService.correlateResults(allRequests.includedRequests, output.responses, parsedNcsa, null);
           results = results.concat(allRequests.excludedRequests.map(function (r) { return { request: r }; }));
         }
 

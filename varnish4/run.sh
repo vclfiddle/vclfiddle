@@ -29,6 +29,11 @@ debuglog "Starting varnishlog"
 varnishlog -D -v -w /fiddle/varnishlog -P /run/varnishlog.pid 2>&1 >>/fiddle/run.log || exit $?
 debuglog "Started varnishlog"
 
+debuglog "Starting varnishncsa"
+NCSA_FORMAT='%{X-Varnish}o %T %O %{Varnish:time_firstbyte}x %{Varnish:hitmiss}x %{Varnish:handling}x'
+varnishncsa -D -w /fiddle/varnishncsa -P /run/varnishncsa.pid -F "$NCSA_FORMAT" 2>&1 >>/fiddle/run.log || exit $?
+debuglog "Started varnishncsa"
+
 debuglog "Executing requests"
 for ITEM in /fiddle/request_*; do
   executerequest $ITEM
@@ -37,5 +42,8 @@ debuglog "Executed requests"
 
 debuglog "Flushing varnishlog"
 kill -s SIGUSR1 $(cat /run/varnishlog.pid)
+
+debuglog "Flushing varnishncsa"
+kill -s SIGUSR1 $(cat /run/varnishncsa.pid)
 
 debuglog "Done"

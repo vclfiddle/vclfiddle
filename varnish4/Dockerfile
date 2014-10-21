@@ -8,9 +8,6 @@ RUN echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> /etc
 RUN apt-get update
 RUN apt-get install --assume-yes varnish=4.0.2-1~trusty
 
-#ADD build.sh /build.sh
-#RUN /build.sh
-
 VOLUME ["/fiddle"]
-ADD run.sh /run.sh
 CMD ["/run.sh"]
+ADD run.sh /run.sh

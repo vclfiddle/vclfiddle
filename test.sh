@@ -23,6 +23,9 @@ cat $TEST_DIR/run.log
 echo "varnishlog:"
 cat $TEST_DIR/varnishlog
 
+echo "varnishncsa:"
+cat $TEST_DIR/varnishncsa
+
 # TODO rm $TEST_DIR
 
 # docker run --rm -ti varnish4 /bin/bash
