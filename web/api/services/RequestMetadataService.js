@@ -77,7 +77,7 @@ function parseResponse(rawResponse) {
 
   var lineIndex = 1;
   while (lineIndex < lines.length) {
-    match = lines[lineIndex].match(/^([^:]+):(.*)/);
+    match = lines[lineIndex].match(/^([^:]+):\s*(.*)/);
     if (match) {
       responseObject.headers.push({name: match[1], value: match[2]});
     } else if (lines[lineIndex].length > 0) {
