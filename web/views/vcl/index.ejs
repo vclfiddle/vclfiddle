@@ -97,6 +97,7 @@
 <script src="/js/bootstrap.min.js" rel="stylesheet"></script>
 <script src="/CodeMirror/codemirror.js"></script>
 <script src="/CodeMirror/mode/javascript/javascript.js"></script>
+<% if (typeof results === 'object') { %><script>var vclfiddle_results=<%- JSON.stringify(results) %>;</script><% } %>
 <script>
   var vcl = CodeMirror.fromTextArea(document.getElementById("vcl"), { lineNumbers: true, mode: {name: "javascript", json: true} });
   var har = CodeMirror.fromTextArea(document.getElementById("har"), { lineNumbers: true, mode: {name: "javascript", json: true} });

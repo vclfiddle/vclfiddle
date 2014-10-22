@@ -32,12 +32,17 @@ module.exports = {
 
       if (fiddle === null) return res.notFound();
 
-      return res.view({
-        fiddleid: fiddle.id,
-        vcl: fiddle.id, // TODO get fiddle vcl
-        har: fiddle.id, // TODO get fiddle raw request
-        log: fiddle.id // TODO get fiddle varnishlog
-      })
+      FiddlePersistenceService.loadViewState(fiddle, function (err, viewState) {
+
+        return res.view({
+          fiddleid: fiddle.id,
+          vcl: viewState.vcl,
+          har: viewState.har,
+          log: viewState.log,
+          results: viewState.results
+        })
+
+      });
 
     });
 
@@ -74,6 +79,8 @@ module.exports = {
       FiddlePersistenceService.prepareFiddle(fiddleid, function (err, fiddle) {
         if (err) return res.serverError(err);
 
+        // TODO persist state of 'replace requests twice' option
+
         ContainerService.replayRequestsWithVcl(fiddle.path, allRequests.includedRequests, vcl, function (err, output) {
 
           var log = '';
@@ -89,14 +96,26 @@ module.exports = {
             results = results.concat(allRequests.excludedRequests.map(function (r) { return { request: r }; }));
           }
 
-          return res.ok({
-            fiddleid: fiddle.id,
-            runindex: fiddle.runIndex,
+          var viewState = {
             vcl: vcl,
             har: har,
             log: log,
-            results: results
-          }, 'vcl/index');
+            results: results,
+          };
+
+          FiddlePersistenceService.saveViewState(fiddle, viewState, function (err) {
+            if (err) return res.serverError(err);
+
+            return res.ok({
+              fiddleid: fiddle.id,
+              runindex: fiddle.runIndex,
+              vcl: viewState.vcl,
+              har: viewState.har,
+              log: viewState.log,
+              results: viewState.results
+            }, 'vcl/index');
+
+          });
 
         });
 

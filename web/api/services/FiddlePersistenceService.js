@@ -44,6 +44,28 @@ const runIndexPattern = /^\d+$/;
 
 module.exports = {
 
+  loadViewState: function (fiddle, callback) {
+    var viewStatePath = path.join(fiddle.path, 'viewstate');
+    fs.readFile(viewStatePath, { encoding: 'utf8' }, function (err, data) {
+      if (err) {
+        sails.log.debug('Could not read ' + viewStatePath + ' because ' + err);
+        return callback(new Error('Failed to access fiddle storage'));
+      }
+      return callback(null, JSON.parse(data));
+    });
+  },
+
+  saveViewState: function (fiddle, viewState, callback) {
+    var viewStatePath = path.join(fiddle.path, 'viewstate');
+    fs.writeFile(viewStatePath, JSON.stringify(viewState), { encoding: 'utf8' }, function (err) {
+      if (err) {
+        sails.log.debug('Could not write ' + viewStatePath + ' because ' + err);
+        return callback(new Error('Failed to access fiddle storage'));
+      }
+      return callback(null);
+    });
+  },
+
   getFiddleRun: function (fiddleId, runIndex, callback) {
 
     if (typeof(fiddleId) !== 'string' || typeof(runIndex) !== 'string' ||
