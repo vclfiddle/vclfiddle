@@ -25,7 +25,7 @@ sudo rsync -av $SCRIPTROOT/web/ /var/web/
 pushd /var/web && sudo npm install && popd
 
 # build the Varnish docker image
-$SCRIPTROOT/build.sh
+$SCRIPTROOT/varnish4/build.sh
 
 # install the setuid run-varnish-container script
 sudo apt-get install --assume-yes gcc
