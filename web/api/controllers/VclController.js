@@ -13,7 +13,12 @@ var url = require('url');
 module.exports = {
 	index: function (req, res) {
     const defaultVcl = 'vcl 4.0; backend default { .host = "www.vclfiddle.net"; .port = "80"; }';
+
+    var fiddleid = req.params.fiddleid || '';
+    var runindex = req.params.runindex || 0;
+
     return res.view({
+      fiddleid: req.params.fiddleid,
       vcl: defaultVcl,
       har: '',
       log: ''
