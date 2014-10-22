@@ -15,14 +15,32 @@ module.exports = {
     const defaultVcl = 'vcl 4.0; backend default { .host = "www.vclfiddle.net"; .port = "80"; }';
 
     var fiddleid = req.params.fiddleid || '';
-    var runindex = req.params.runindex || 0;
+    var runindex = req.params.runindex || '0';
 
-    return res.view({
-      fiddleid: req.params.fiddleid,
-      vcl: defaultVcl,
-      har: '',
-      log: ''
+    if (!fiddleid) {
+      return res.view({
+        fiddleid: '',
+        vcl: defaultVcl,
+        har: '',
+        log: ''
+      });
+    }
+
+    FiddlePersistenceService.getFiddleRun(fiddleid, runindex, function (err, fiddle) {
+
+      if (err) return res.serverError(err);
+
+      if (fiddle === null) return res.notFound();
+
+      return res.view({
+        fiddleid: fiddle.id,
+        vcl: fiddle.id, // TODO get fiddle vcl
+        har: fiddle.id, // TODO get fiddle raw request
+        log: fiddle.id // TODO get fiddle varnishlog
+      })
+
     });
+
   },
 
   run: function (req, res) {
