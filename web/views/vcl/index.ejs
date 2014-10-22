@@ -52,7 +52,7 @@
     </div>
     <div class="col-md-10">
       <form id="input">
-      <input id="fiddleid" type="hidden" name="fiddleid" value="<%= locals.fiddleid || '' %>" />
+      <input id="fiddleid" type="hidden" name="fiddleid" value="<%= fiddleid || '' %>" />
       <div class="row">
         <div class="col-md-6">
           <div class="row">
@@ -97,6 +97,7 @@
 <script src="/js/bootstrap.min.js" rel="stylesheet"></script>
 <script src="/CodeMirror/codemirror.js"></script>
 <script src="/CodeMirror/mode/javascript/javascript.js"></script>
+<% if (typeof results === 'object') { %><script>var vclfiddle_results=<%- JSON.stringify(results) %>;</script><% } %>
 <script>
   var vcl = CodeMirror.fromTextArea(document.getElementById("vcl"), { lineNumbers: true, mode: {name: "javascript", json: true} });
   var har = CodeMirror.fromTextArea(document.getElementById("har"), { lineNumbers: true, mode: {name: "javascript", json: true} });
@@ -116,6 +117,9 @@
       varnishlog.setValue(data.log);
       har.setValue(data.har);
       hiddenFiddleIdInput.value = data.fiddleid;
+      var newFiddleUrl = ['/', data.fiddleid, '/', data.runindex].join('');
+      window.history.pushState({fiddleid: data.fiddleid, runindex: data.runindex}, '', newFiddleUrl);
+      // TODO handle popState for history navigation
     });
   });
   $("#save").click(function (e) {e.preventDefault();});

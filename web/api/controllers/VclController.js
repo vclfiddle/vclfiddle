@@ -13,11 +13,39 @@ var url = require('url');
 module.exports = {
 	index: function (req, res) {
     const defaultVcl = 'vcl 4.0; backend default { .host = "www.vclfiddle.net"; .port = "80"; }';
-    return res.view({
-      vcl: defaultVcl,
-      har: '',
-      log: ''
+
+    var fiddleid = req.params.fiddleid || '';
+    var runindex = req.params.runindex || '0';
+
+    if (!fiddleid) {
+      return res.view({
+        fiddleid: '',
+        vcl: defaultVcl,
+        har: '',
+        log: ''
+      });
+    }
+
+    FiddlePersistenceService.getFiddleRun(fiddleid, runindex, function (err, fiddle) {
+
+      if (err) return res.serverError(err);
+
+      if (fiddle === null) return res.notFound();
+
+      FiddlePersistenceService.loadViewState(fiddle, function (err, viewState) {
+
+        return res.view({
+          fiddleid: fiddle.id,
+          vcl: viewState.vcl,
+          har: viewState.har,
+          log: viewState.log,
+          results: viewState.results
+        })
+
+      });
+
     });
+
   },
 
   run: function (req, res) {
@@ -51,6 +79,8 @@ module.exports = {
       FiddlePersistenceService.prepareFiddle(fiddleid, function (err, fiddle) {
         if (err) return res.serverError(err);
 
+        // TODO persist state of 'replace requests twice' option
+
         ContainerService.replayRequestsWithVcl(fiddle.path, allRequests.includedRequests, vcl, function (err, output) {
 
           var log = '';
@@ -66,14 +96,26 @@ module.exports = {
             results = results.concat(allRequests.excludedRequests.map(function (r) { return { request: r }; }));
           }
 
-          return res.ok({
-            fiddleid: fiddle.id,
-            runindex: fiddle.runIndex,
+          var viewState = {
             vcl: vcl,
             har: har,
             log: log,
-            results: results
-          }, 'vcl/index');
+            results: results,
+          };
+
+          FiddlePersistenceService.saveViewState(fiddle, viewState, function (err) {
+            if (err) return res.serverError(err);
+
+            return res.ok({
+              fiddleid: fiddle.id,
+              runindex: fiddle.runIndex,
+              vcl: viewState.vcl,
+              har: viewState.har,
+              log: viewState.log,
+              results: viewState.results
+            }, 'vcl/index');
+
+          });
 
         });
 

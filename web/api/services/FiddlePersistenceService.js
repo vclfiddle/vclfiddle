@@ -39,11 +39,54 @@ function newFiddle(callback) {
 
 }
 
+const fiddleIdPattern = /^\d{6}-[a-z\d]{7}$/;
+const runIndexPattern = /^\d+$/;
+
 module.exports = {
+
+  loadViewState: function (fiddle, callback) {
+    var viewStatePath = path.join(fiddle.path, 'viewstate');
+    fs.readFile(viewStatePath, { encoding: 'utf8' }, function (err, data) {
+      if (err) {
+        sails.log.debug('Could not read ' + viewStatePath + ' because ' + err);
+        return callback(new Error('Failed to access fiddle storage'));
+      }
+      return callback(null, JSON.parse(data));
+    });
+  },
+
+  saveViewState: function (fiddle, viewState, callback) {
+    var viewStatePath = path.join(fiddle.path, 'viewstate');
+    fs.writeFile(viewStatePath, JSON.stringify(viewState), { encoding: 'utf8' }, function (err) {
+      if (err) {
+        sails.log.debug('Could not write ' + viewStatePath + ' because ' + err);
+        return callback(new Error('Failed to access fiddle storage'));
+      }
+      return callback(null);
+    });
+  },
+
+  getFiddleRun: function (fiddleId, runIndex, callback) {
+
+    if (typeof(fiddleId) !== 'string' || typeof(runIndex) !== 'string' ||
+      !fiddleId.match(fiddleIdPattern) || !runIndex.match(runIndexPattern)) {
+      return callback(new Error('Invalid fiddleid or runindex'));
+    }
+
+    var fiddleRunDir = path.join(fiddleDirPrefix + fiddleId, runIndex);
+    fs.stat(fiddleRunDir, function (err, stats) {
+      if (err || !stats.isDirectory()) {
+        // TODO log if the error isn't ENOENT
+        // TODO try to pull dir from other storage
+        return callback(null, null);
+      }
+      return callback(null,  {id: fiddleId, path: fiddleRunDir, runIndex: runIndex});
+    });
+  },
 
   prepareFiddle: function (fiddleId, callback) {
 
-    if (typeof(fiddleId) == 'string' && fiddleId.match(/^\d{6}-[a-z\d]{7}$/)) {
+    if (typeof(fiddleId) == 'string' && fiddleId.match(fiddleIdPattern)) {
         var dir = fiddleDirPrefix + fiddleId;
         var nextPath = path.join(dir, 'next');
         fs.open(nextPath, 'r+', function(err, fd) {
