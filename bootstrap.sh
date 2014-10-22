@@ -9,6 +9,11 @@ if ! command -v docker >/dev/null; then
   curl -sSL https://get.docker.io/ubuntu/ | sudo sh
 fi
 
+# install g++ via build-essential
+if ! command -v g++ >/dev/null; then
+  sudo apt-get install --assume-yes build-essential
+fi
+
 # install nodejs
 if ! command -v npm >/dev/null; then
   curl -sL https://deb.nodesource.com/setup | sudo bash -
@@ -25,7 +30,7 @@ sudo rsync -av $SCRIPTROOT/web/ /var/web/
 pushd /var/web && sudo npm install && popd
 
 # build the Varnish docker image
-$SCRIPTROOT/build.sh
+$SCRIPTROOT/varnish4/build.sh
 
 # install the setuid run-varnish-container script
 sudo apt-get install --assume-yes gcc

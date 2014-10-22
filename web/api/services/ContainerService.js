@@ -2,8 +2,6 @@ var child_process = require('child_process');
 var fs = require('fs');
 var path = require('path');
 var Q = require('q');
-var rimraf = require('rimraf');
-var temp = require('temp');
 
 function countdownCallback(count, onZeroCallback) {
   return function () {
@@ -107,31 +105,23 @@ function readOutputFiles(dirPath, callback) {
 
 module.exports = {
 
-  replayRequestsWithVcl: function (includedRequests, vclText, callback) {
+  replayRequestsWithVcl: function (dirPath, includedRequests, vclText, callback) {
 
-    temp.mkdir('fiddle', function (err, dirPath) {
+    sails.log.debug('replaying requests with vcl in: ' + dirPath);
+
+    writeInputFiles(dirPath, includedRequests, vclText, function (err) {
 
       if (err) return callback(err);
 
-      sails.log.debug('dirPath: ' + dirPath);
-
-      writeInputFiles(dirPath, includedRequests, vclText, function (err) {
+      runContainer(dirPath, function (err) {
 
         if (err) return callback(err);
 
-        runContainer(dirPath, function (err) {
+        readOutputFiles(dirPath, function (err, output) {
 
           if (err) return callback(err);
 
-          readOutputFiles(dirPath, function (err, output) {
-
-            if (err) return callback(err);
-
-            rimraf(dirPath, function () {}); // TODO clean up old failed temp dirs after investigation
-
-            callback(null, output);
-
-          });
+          callback(null, output);
 
         });
 

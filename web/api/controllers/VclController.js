@@ -21,12 +21,14 @@ module.exports = {
   },
 
   run: function (req, res) {
+    var fiddleid = req.body.fiddleid || '';
     var vcl = req.body.vcl;
 
     RequestMetadataService.parseHar(req.body.har, function (err, har, allRequests) {
 
       if (err) {
         return res.ok({
+          fiddleid: fiddleid,
           vcl: vcl,
           har: har,
           log: 'Failed to parse HAR. ' + err
@@ -35,6 +37,7 @@ module.exports = {
 
       if (allRequests.includedRequests.length == 0) {
         return res.ok({
+          fiddleid: fiddleid,
           vcl: vcl,
           har: har,
           log: 'HAR does not contain any supported requests.'
@@ -45,27 +48,34 @@ module.exports = {
         allRequests.includedRequests = allRequests.includedRequests.concat(allRequests.includedRequests);
       }
 
-      ContainerService.replayRequestsWithVcl(allRequests.includedRequests, vcl, function (err, output) {
+      FiddlePersistenceService.prepareFiddle(fiddleid, function (err, fiddle) {
+        if (err) return res.serverError(err);
 
-        var log = '';
-        var results = null;
-        if (err) {
-          log = 'Error: ' + err;
-        } else if (output.runlog.length > 0) {
-          log = 'Error: ' + output.runlog;
-        } else {
-          log = output.varnishlog; // TODO parse and format
-          var parsedNcsa = RequestMetadataService.parseVarnish4NCSA(output.varnishncsa);
-          results = RequestMetadataService.correlateResults(allRequests.includedRequests, output.responses, parsedNcsa, null);
-          results = results.concat(allRequests.excludedRequests.map(function (r) { return { request: r }; }));
-        }
+        ContainerService.replayRequestsWithVcl(fiddle.path, allRequests.includedRequests, vcl, function (err, output) {
 
-        return res.ok({
-          vcl: vcl,
-          har: har,
-          log: log,
-          results: results
-        }, 'vcl/index');
+          var log = '';
+          var results = null;
+          if (err) {
+            log = 'Error: ' + err;
+          } else if (output.runlog.length > 0) {
+            log = 'Error: ' + output.runlog;
+          } else {
+            log = output.varnishlog; // TODO parse and format
+            var parsedNcsa = RequestMetadataService.parseVarnish4NCSA(output.varnishncsa);
+            results = RequestMetadataService.correlateResults(allRequests.includedRequests, output.responses, parsedNcsa, null);
+            results = results.concat(allRequests.excludedRequests.map(function (r) { return { request: r }; }));
+          }
+
+          return res.ok({
+            fiddleid: fiddle.id,
+            runindex: fiddle.runIndex,
+            vcl: vcl,
+            har: har,
+            log: log,
+            results: results
+          }, 'vcl/index');
+
+        });
 
       });
 
