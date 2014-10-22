@@ -22,12 +22,13 @@ describe('FiddlePersistenceService', function () {
       });
     });
 
-    it('should return a new subdir the input fiddle exists', function (done) {
+    it('should return a new subdir when the input fiddle exists', function (done) {
       var req_body = {};
       FiddlePersistenceService.prepareFiddle(req_body.id, function (err, fiddleA) {
         if (err) return done(err);
         FiddlePersistenceService.prepareFiddle(fiddleA.id, function (err, fiddleB) {
-          expect(fiddleA.id).equal(fiddleB.id);
+          expect(fiddleB.id).equal(fiddleA.id);
+          expect(fiddleB.runIndex).equal(fiddleA.runIndex + 1);
           rimraf(path.join(fiddleA.path, '..'), done);
         });
       });

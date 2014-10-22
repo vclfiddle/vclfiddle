@@ -18,9 +18,9 @@ function newFiddle(callback) {
 
   var dir = fiddleDirPrefix + fiddleId;
   var nextPath = path.join(dir, 'next');
-  var nextIndex = 0;
-  var fiddleRunDir = path.join(dir, nextIndex.toString());
-  var newIndexText = (nextIndex + 1).toString();
+  var runIndex = 0;
+  var fiddleRunDir = path.join(dir, runIndex.toString());
+  var newIndexText = (runIndex + 1).toString();
 
   mkdirp(fiddleRunDir, function (err) {
     if (err) {
@@ -33,7 +33,7 @@ function newFiddle(callback) {
         sails.log.debug('Could not write ' + nextPath + ' because ' + err);
         return callback(new Error('Failed to access fiddle storage.'));
       }
-      return callback(null, {id: fiddleId, path: fiddleRunDir});
+      return callback(null, {id: fiddleId, path: fiddleRunDir, runIndex: runIndex});
     })
   });
 
@@ -64,8 +64,8 @@ module.exports = {
                 sails.log.debug('Could not read ' + nextPath + ' because ' + err);
                 return callback(new Error('Failed to access fiddle storage.'));
               }
-              var nextIndex = parseInt(buffer.toString('utf8', 0, bytesRead), 10);
-              var newIndexText = (nextIndex + 1).toString();
+              var runIndex = parseInt(buffer.toString('utf8', 0, bytesRead), 10);
+              var newIndexText = (runIndex + 1).toString();
               buffer.write(newIndexText, 0, newIndexText.length, 'utf8');
               fs.write(fd, buffer, 0, newIndexText.length, 0, function (err, bytesWritten, buffer) {
                 if (err) {
@@ -78,13 +78,13 @@ module.exports = {
                     return callback(new Error('Failed to access fiddle storage.'));
                   }
 
-                  var fiddleRunDir = path.join(dir, nextIndex.toString());
+                  var fiddleRunDir = path.join(dir, runIndex.toString());
                   mkdirp(fiddleRunDir, function (err) {
                     if (err) {
                       sails.log.debug('Could not mkdir ' + fiddleRunDir + ' because ' + err);
                       return callback(new Error('Failed to access fiddle storage.'));
                     }
-                    return callback(null, {id: fiddleId, path: fiddleRunDir});
+                    return callback(null, {id: fiddleId, path: fiddleRunDir, runIndex: runIndex});
                   });
 
                 });

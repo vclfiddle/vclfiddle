@@ -68,7 +68,7 @@ module.exports = {
 
           return res.ok({
             fiddleid: fiddle.id,
-            // TODO fiddleRunIndex
+            runindex: fiddle.runIndex,
             vcl: vcl,
             har: har,
             log: log,
