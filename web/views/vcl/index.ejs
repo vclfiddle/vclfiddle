@@ -117,6 +117,9 @@
       varnishlog.setValue(data.log);
       har.setValue(data.har);
       hiddenFiddleIdInput.value = data.fiddleid;
+      var newFiddleUrl = ['/', data.fiddleid, '/', data.runindex].join('');
+      window.history.pushState({fiddleid: data.fiddleid, runindex: data.runindex}, '', newFiddleUrl);
+      // TODO handle popState for history navigation
     });
   });
   $("#save").click(function (e) {e.preventDefault();});
