@@ -155,6 +155,13 @@
       resulttbody.find('td.result-summary-contentType').text(contentType);
       resulttbody.find('td.result-summary-cache').text(result.ncsa.hitmiss);
 
+      var detailsRow = resulttbody.find('tr.result-details');
+      detailsRow.hide();
+      resulttbody.find('td.result-details-toggle').click(function (ev) {
+        detailsRow.slideToggle();
+      });
+      // TODO handle keyboard expansion too
+
       var detailRowTemplate = resulttbody.find('tr#result-details-row-template');
       var detailRows = resp.headers.forEach(function (header) {
         var row = detailRowTemplate.clone();
