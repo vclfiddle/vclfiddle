@@ -51,14 +51,15 @@ module.exports = {
   run: function (req, res) {
     var fiddleid = req.body.fiddleid || '';
     var vcl = req.body.vcl;
+    var rawRequests = req.body.har;
 
-    RequestMetadataService.parseHar(req.body.har, function (err, har, allRequests) {
+    RequestMetadataService.parseInputRequests(rawRequests, function (err, _ignored, allRequests) {
 
       if (err) {
         return res.ok({
           fiddleid: fiddleid,
           vcl: vcl,
-          har: har,
+          har: rawRequests,
           log: 'Failed to parse HAR. ' + err
         }, 'vcl/index');
       }
@@ -67,7 +68,7 @@ module.exports = {
         return res.ok({
           fiddleid: fiddleid,
           vcl: vcl,
-          har: har,
+          har: rawRequests,
           log: 'HAR does not contain any supported requests.'
         }, 'vcl/index');
       }
@@ -98,7 +99,7 @@ module.exports = {
 
           var viewState = {
             vcl: vcl,
-            har: har,
+            har: rawRequests,
             log: log,
             results: results,
           };

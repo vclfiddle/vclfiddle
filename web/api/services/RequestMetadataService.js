@@ -92,12 +92,12 @@ function parseResponse(rawResponse) {
 
 module.exports = {
 
-  parseHar: function (rawHar, callback) {
+  parseInputRequests: function (rawInput, callback) {
 
     try {
-      var parsedHar = JSON.parse(rawHar);
+      var parsedHar = JSON.parse(rawInput);
     } catch (ex) {
-      return callback('Failed to parse HAR. ' + ex, rawHar);
+      return callback('Failed to parse HAR. ' + ex, rawInput);
     }
 
     return callback(
