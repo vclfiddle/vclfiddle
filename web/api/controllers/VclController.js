@@ -60,7 +60,7 @@ module.exports = {
           fiddleid: fiddleid,
           vcl: vcl,
           har: rawRequests,
-          log: 'Failed to parse HAR. ' + err
+          log: err
         }, 'vcl/index');
       }
 
