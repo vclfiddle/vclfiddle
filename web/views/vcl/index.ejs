@@ -83,7 +83,27 @@
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
-                <div class="editor"><textarea class="form-control" id="transactions"></textarea><span class="window-label">transactions</span></div>
+                <table class="form-control results" id="transactions">
+                  <thead>
+                    <tr>
+                      <th />
+                      <th>Request</th>
+                      <th>Response</th>
+                      <th>Content-Type</th>
+                      <th>Cache</th>
+                    </tr>
+                  </thead>
+                  <tbody id="results-tbody-template" style="display: none;">
+                    <tr class="result-summary">
+                      <td class="result-details-toggle">[+]</td>
+                      <td class="result-summary-request">req</td>
+                      <td class="result-summary-response">resp</td>
+                      <td class="result-summary-contentType">content</td>
+                      <td class="result-cache-miss">cache</td>
+                    </tr>
+                    <tr class="result-details"><td /><td colspan="4">Details go here</td></tr>
+                  <tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -102,7 +122,6 @@
   var vcl = CodeMirror.fromTextArea(document.getElementById("vcl"), { lineNumbers: true, mode: {name: "javascript", json: true} });
   var har = CodeMirror.fromTextArea(document.getElementById("har"), { lineNumbers: true, mode: {name: "javascript", json: true} });
   var varnishlog = CodeMirror.fromTextArea(document.getElementById("varnishlog"), { lineNumbers: true, mode: {name: "javascript", json: true}, readOnly: true });
-  CodeMirror.fromTextArea(document.getElementById("transactions"), { lineNumbers: true, mode: {name: "javascript", json: true}, readOnly: true });
   var hiddenFiddleIdInput = document.getElementById('fiddleid');
   $("#run").click(function (e) {
     e.preventDefault();
@@ -132,6 +151,30 @@
   .mouseleave(function() {
     $( this ).find( ".window-label" ).fadeIn();
   });
+
+  function displayTransactions(results) {
+    var table = $('table#transactions');
+    var tbodyTemplate = table.find('tbody#results-tbody-template');
+    results.forEach(function (result) {
+      var reqSumm = result.request.summary;
+      var requestText = [reqSumm.method, reqSumm.url, reqSumm.httpVersion].join(' ');
+      var resp = result.response;
+      var responseText = [resp.protocol, resp.code, resp.comment].join(' ');
+      var contentType = resp.headers.filter(function (h) { return h.name.toLowerCase() === 'content-type'; });
+      contentType = contentType.length === 0 ? '' : contentType[0].value;
+
+      var resulttbody = tbodyTemplate.clone(); // TODO with events?
+      resulttbody.attr('id', '');
+      resulttbody.attr('style', '');
+      resulttbody.find('td.result-summary-request').text(requestText);
+      resulttbody.find('td.result-summary-response').text(responseText);
+      resulttbody.find('td.result-summary-contentType').text(contentType);
+      resulttbody.insertAfter(tbodyTemplate); // TODO fix reverse order probably
+    });
+  };
+
+  if (typeof vclfiddle_results === 'object') displayTransactions(vclfiddle_results);
+
 </script>
 <style>
   h3 {
