@@ -1,4 +1,5 @@
 var url = require('url');
+var nopt = require('nopt');
 
 function convertHarEntriesToRequests (harObject) {
   var requests = [];
@@ -90,6 +91,34 @@ function parseResponse(rawResponse) {
   return responseObject;
 }
 
+function parseCurlCommands(rawInput, callback) {
+  if (typeof rawInput !== 'string' || rawInput.length == 0) {
+    return callback(new Error('rawInput is not a string or is empty.'));
+  }
+
+  const knownCurlOpts = {
+    'header': String
+  };
+  const curlShortHands = {
+    'H': 'header'
+  };
+
+  var requests = rawInput.split(/\r?\n/)
+    .map(function (line) {
+      if (!line.match(/^\s*curl\s+/)) {
+        sails.log.debug('Line does not begin with a curl command: ' + line);
+        return null;
+      }
+      var parsed = nopt(knownCurlOpts, curlShortHands, line, )
+      // TODO parse line options
+    })
+    .filter(function (request) {
+      return request !== null;
+    });
+
+  return callback(null, requests); // TODO split requests into included and excluded
+}
+
 module.exports = {
 
   parseInputRequests: function (rawInput, callback) {
@@ -97,7 +126,14 @@ module.exports = {
     try {
       var parsedHar = JSON.parse(rawInput);
     } catch (ex) {
-      return callback('Failed to parse HAR. ' + ex, rawInput);
+      return parseCurlCommands(rawInput, function (err, allRequests) {
+        if (err) {
+          sails.log.debug('Failed to parse HAR because ' + ex);
+          sails.log.debug('Failed to parse Curl because ' + err);
+          return callback(new Error('Failed to parse requests'), rawInput, null);
+        }
+        return callback(null, rawInput, allRequests);
+      });
     }
 
     return callback(
