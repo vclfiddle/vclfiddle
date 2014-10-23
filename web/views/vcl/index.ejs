@@ -99,9 +99,21 @@
                       <td class="result-summary-request">req</td>
                       <td class="result-summary-response">resp</td>
                       <td class="result-summary-contentType">content</td>
-                      <td class="result-cache-miss">cache</td>
+                      <td class="result-summary-cache">cache</td>
                     </tr>
-                    <tr class="result-details"><td /><td colspan="4">Details go here</td></tr>
+                    <tr class="result-details"><td /><td colspan="4">
+                      <table>
+                        <thead><tr>
+                          <th>Header Name</th><th>Value</th>
+                        </tr></thead>
+                        <tbody>
+                          <tr id="result-details-row-template" style="display: none;">
+                            <td class="result-details-headerName">name</td>
+                            <td class="result-details-headerValue">value</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </td></tr>
                   <tbody>
                 </table>
               </div>
@@ -123,34 +135,6 @@
   var har = CodeMirror.fromTextArea(document.getElementById("har"), { lineNumbers: true, mode: {name: "javascript", json: true} });
   var varnishlog = CodeMirror.fromTextArea(document.getElementById("varnishlog"), { lineNumbers: true, mode: {name: "javascript", json: true}, readOnly: true });
   var hiddenFiddleIdInput = document.getElementById('fiddleid');
-  $("#run").click(function (e) {
-    e.preventDefault();
-    vcl.save();
-    har.save();
-    $.ajax({
-      type: "POST",
-      url: "/vcl/run",
-      data: $( "#input" ).serialize(),
-      headers: { Accept: "application/json; charset=utf-8"}
-    }).done(function( data ) {
-      varnishlog.setValue(data.log);
-      har.setValue(data.har);
-      hiddenFiddleIdInput.value = data.fiddleid;
-      var newFiddleUrl = ['/', data.fiddleid, '/', data.runindex].join('');
-      window.history.pushState({fiddleid: data.fiddleid, runindex: data.runindex}, '', newFiddleUrl);
-      // TODO handle popState for history navigation
-    });
-  });
-  $("#save").click(function (e) {e.preventDefault();});
-  $("#share").click(function (e) {e.preventDefault();});
-
-  $( ".editor" )
-  .mouseenter(function() {
-    $( this ).find( ".window-label" ).fadeOut();
-  })
-  .mouseleave(function() {
-    $( this ).find( ".window-label" ).fadeIn();
-  });
 
   function displayTransactions(results) {
     var table = $('table#transactions');
@@ -169,9 +153,55 @@
       resulttbody.find('td.result-summary-request').text(requestText);
       resulttbody.find('td.result-summary-response').text(responseText);
       resulttbody.find('td.result-summary-contentType').text(contentType);
+      resulttbody.find('td.result-summary-cache').text(result.ncsa.hitmiss);
+
+      var detailRowTemplate = resulttbody.find('tr#result-details-row-template');
+      var detailRows = resp.headers.forEach(function (header) {
+        var row = detailRowTemplate.clone();
+        row.attr('id', '');
+        row.attr('style', '');
+        row.find('td.result-details-headerName').text(header.name);
+        row.find('td.result-details-headerValue').text(header.value);
+        row.insertAfter(detailRowTemplate);
+      });
+
+      // TODO show ncsa.handling in details
+
+      detailRowTemplate.remove();
+
       resulttbody.insertAfter(tbodyTemplate); // TODO fix reverse order probably
     });
   };
+
+  $("#run").click(function (e) {
+    e.preventDefault();
+    vcl.save();
+    har.save();
+    $.ajax({
+      type: "POST",
+      url: "/vcl/run",
+      data: $( "#input" ).serialize(),
+      headers: { Accept: "application/json; charset=utf-8"}
+    }).done(function( data ) {
+      varnishlog.setValue(data.log);
+      har.setValue(data.har);
+      displayTransactions(data.results);
+      hiddenFiddleIdInput.value = data.fiddleid;
+      var newFiddleUrl = ['/', data.fiddleid, '/', data.runindex].join('');
+      window.history.pushState({fiddleid: data.fiddleid, runindex: data.runindex}, '', newFiddleUrl);
+      // TODO handle popState for history navigation
+    });
+  });
+  $("#save").click(function (e) {e.preventDefault();});
+  $("#share").click(function (e) {e.preventDefault();});
+
+  $( ".editor" )
+  .mouseenter(function() {
+    $( this ).find( ".window-label" ).fadeOut();
+  })
+  .mouseleave(function() {
+    $( this ).find( ".window-label" ).fadeIn();
+  });
 
   if (typeof vclfiddle_results === 'object') displayTransactions(vclfiddle_results);
 
