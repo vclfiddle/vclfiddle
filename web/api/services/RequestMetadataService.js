@@ -125,13 +125,18 @@ function parseCurlCommands(rawInput, callback) {
         var unparsedUrl = parsed.argv.remain[0];
         var parsedUrl = url.parse(unparsedUrl);
         req.summary.url = unparsedUrl;
+        req.warnings = [];
         req.payload = [req.summary.method, parsedUrl.path, req.summary.httpVersion].join(' ') + '\r\n';
         if (parsed.header) {
           // TODO omit Connection header
           // TODO allow Host header to override default
           // TODO enforce header validity
           parsed.header.forEach(function (header) {
-            req.payload += header + '\r\n';
+            if (header.match(/^\s*connection\s*:/i)) {
+              req.warnings.push('Connection request header not supported.');
+            } else {
+              req.payload += header + '\r\n';
+            }
           });
         }
         if (!req.payload.match(/^host:/mi)) {

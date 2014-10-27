@@ -5,7 +5,7 @@ describe('RequestMetadataService', function () {
   describe('#parseInputRequests()', function () {
 
     it('should parse a basic curl command', function (done) {
-      var argv = RequestMetadataService.parseInputRequests('curl http://www.vclfiddle.net', function (err, input, allRequests) {
+      RequestMetadataService.parseInputRequests('curl http://www.vclfiddle.net', function (err, input, allRequests) {
         if (err) return done(err);
         expect(allRequests.includedRequests.length).to.equal(1);
         expect(allRequests.includedRequests[0].entryIndex).to.equal(0);
@@ -18,7 +18,7 @@ describe('RequestMetadataService', function () {
     });
 
     it('should parse a curl command with custom headers', function (done) {
-      var argv = RequestMetadataService.parseInputRequests('curl --header "Accept: */*" http://www.vclfiddle.net -H \'DNT: 1\'', function (err, input, allRequests) {
+      RequestMetadataService.parseInputRequests('curl --header "Accept: */*" http://www.vclfiddle.net -H \'DNT: 1\'', function (err, input, allRequests) {
         if (err) return done(err);
         expect(allRequests.includedRequests.length).to.equal(1);
         expect(allRequests.includedRequests[0].summary.url).to.equal('http://www.vclfiddle.net');
@@ -29,7 +29,7 @@ describe('RequestMetadataService', function () {
     });
 
     it('should parse a curl command with Host header override', function (done) {
-      var argv = RequestMetadataService.parseInputRequests('curl --header "Host: not.vclfiddle.net" http://www.vclfiddle.net', function (err, input, allRequests) {
+      RequestMetadataService.parseInputRequests('curl --header "Host: not.vclfiddle.net" http://www.vclfiddle.net', function (err, input, allRequests) {
         if (err) return done(err);
         expect(allRequests.includedRequests.length).to.equal(1);
         expect(allRequests.includedRequests[0].payload).to.contain('Host: not.vclfiddle.net\r\n');
@@ -38,13 +38,23 @@ describe('RequestMetadataService', function () {
       });
     });
 
+    it('should ignore custom Connection: headers with a warning', function (done) {
+      RequestMetadataService.parseInputRequests('curl --header "Connection: Upgrade" http://www.vclfiddle.net', function (err, input, allRequests) {
+        if (err) return done(err);
+        expect(allRequests.includedRequests.length).to.equal(1);
+        expect(allRequests.includedRequests[0].payload).to.not.contain('Connection:');
+        expect(allRequests.includedRequests[0].warnings).to.contain('Connection request header not supported.');
+        done();
+      });
+    });
+
     it('should ignore the --compressed arg or ensure that Accept-Encoding header is present');
-    it('should ignore custom Connection: headers');
     it('should ignore understand the POST method and request body');
     it('should show warnings for unsupported or excess curl arguments');
     it('should categorise some requests as excluded (eg other hosts)');
     it('should understand the -0 argument for HTTP/1.0');
     it('should understand HTTPS');
+    it('should understand --user-agent and --referrer arguments and their shorthand');
 
   });
 
