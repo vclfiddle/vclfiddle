@@ -103,6 +103,7 @@ function parseCurlCommands(rawInput, callback) {
     'H': '--header'
   };
 
+  var firstHost = null;
   var requests = rawInput.split(/\r?\n/)
     .map(function (line, entryIndex) {
       var req = {
@@ -126,23 +127,31 @@ function parseCurlCommands(rawInput, callback) {
         var parsedUrl = url.parse(unparsedUrl);
         req.summary.url = unparsedUrl;
         req.warnings = [];
-        req.payload = [req.summary.method, parsedUrl.path, req.summary.httpVersion].join(' ') + '\r\n';
+        var payload = [req.summary.method, parsedUrl.path, req.summary.httpVersion].join(' ') + '\r\n';
+        var thisHost = null;
         if (parsed.header) {
-          // TODO omit Connection header
-          // TODO allow Host header to override default
-          // TODO enforce header validity
+          // TODO enforce header has 'name: value' pattern
           parsed.header.forEach(function (header) {
             if (header.match(/^\s*connection\s*:/i)) {
               req.warnings.push('Connection request header not supported.');
             } else {
-              req.payload += header + '\r\n';
+              var match = header.match(/^\s*host\s*:\s*(.*)/i);
+              if (match) thisHost = match[1];
+              payload += header + '\r\n';
             }
           });
         }
-        if (!req.payload.match(/^host:/mi)) {
-          req.payload += 'Host: ' + parsedUrl.host + '\r\n';
+        if (!payload.match(/^\s*host\s*:/mi)) {
+          thisHost = parsedUrl.host;
+          payload += 'Host: ' + thisHost + '\r\n';
         }
-        req.payload += '\r\n';
+        if (firstHost === null) firstHost = thisHost;
+        if (thisHost !== firstHost) {
+          req.excludeReason = 'Ignored';
+          req.message = 'URL Host does not match first request: ' + thisHost;
+        } else {
+          req.payload = payload + '\r\n';
+        }
       }
       return req;
     })
@@ -150,7 +159,17 @@ function parseCurlCommands(rawInput, callback) {
       return request !== null;
     });
 
-  return callback(null, { includedRequests: requests } ); // TODO split requests into included and excluded
+  var allRequests = { 
+    includedRequests: [],
+    excludedRequests: []
+  };
+
+  requests.forEach(function (req) {
+    if (req.excludeReason) return allRequests.excludedRequests.push(req);
+    allRequests.includedRequests.push(req);
+  });
+
+  return callback(null, allRequests);
 }
 
 module.exports = {

@@ -48,10 +48,22 @@ describe('RequestMetadataService', function () {
       });
     });
 
+    it('should categorise requests for hosts other than the first as excluded', function (done) {
+      RequestMetadataService.parseInputRequests('curl --header "Host: first" http://www.vclfiddle.net\ncurl --header "Host: second" http://www.vclfiddle.net', function (err, input, allRequests) {
+        if (err) return done(err);
+        expect(allRequests.includedRequests.length).to.equal(1);
+        expect(allRequests.excludedRequests.length).to.equal(1);
+        expect(allRequests.excludedRequests[0].excludeReason).to.equal('Ignored');
+        expect(allRequests.excludedRequests[0].message).to.contain('Host does not match first request');
+        done();
+      });
+    });
+
+    it('should exclude command with missing url');
+    it('should exclude command with invalid url');
     it('should ignore the --compressed arg or ensure that Accept-Encoding header is present');
     it('should ignore understand the POST method and request body');
     it('should show warnings for unsupported or excess curl arguments');
-    it('should categorise some requests as excluded (eg other hosts)');
     it('should understand the -0 argument for HTTP/1.0');
     it('should understand HTTPS');
     it('should understand --user-agent and --referrer arguments and their shorthand');
