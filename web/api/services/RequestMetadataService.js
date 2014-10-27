@@ -104,19 +104,36 @@ function parseCurlCommands(rawInput, callback) {
   };
 
   var requests = rawInput.split(/\r?\n/)
-    .map(function (line) {
+    .map(function (line, entryIndex) {
+      var req = {
+        entryIndex: entryIndex,
+        summary: {
+          method: 'GET',
+          url: null,
+          httpVersion: 'HTTP/1.1'
+        }
+      };
+
       if (!line.match(/^\s*curl\s+/)) {
         sails.log.debug('Line does not begin with a curl command: ' + line);
         return null;
       }
-      var parsed = nopt(knownCurlOpts, curlShortHands, line, )
-      // TODO parse line options
+      var argv = CommandLineService.parseCommandLineToArgv(line);
+      var parsed = nopt(knownCurlOpts, curlShortHands, argv, 1);
+
+      if (parsed.argv.remain.length >= 1) {
+        var unparsedUrl = parsed.argv.remain[0];
+        var parsedUrl = url.parse(unparsedUrl);
+        req.summary.url = unparsedUrl;
+      }
+      //console.log(parsed);
+      return req;
     })
     .filter(function (request) {
       return request !== null;
     });
 
-  return callback(null, requests); // TODO split requests into included and excluded
+  return callback(null, { includedRequests: requests } ); // TODO split requests into included and excluded
 }
 
 module.exports = {
