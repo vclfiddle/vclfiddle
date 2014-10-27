@@ -97,10 +97,12 @@ function parseCurlCommands(rawInput, callback) {
   }
 
   const knownCurlOpts = {
-    'header': Array
+    'header': Array,
+    'http1.0': Boolean
   };
   const curlShortHands = {
-    'H': '--header'
+    'H': '--header',
+    '0': '--http1.0'
   };
 
   var firstHost = null;
@@ -133,6 +135,10 @@ function parseCurlCommands(rawInput, callback) {
         parsedUrl = url.parse(unparsedUrl);
         req.summary.url = unparsedUrl;
         thisHost = parsedUrl.host;
+      }
+
+      if (parsed['http1.0']) {
+        req.summary.httpVersion = 'HTTP/1.0';
       }
 
       var payload = [req.summary.method, parsedUrl.path, req.summary.httpVersion].join(' ') + '\r\n';

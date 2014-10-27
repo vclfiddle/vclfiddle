@@ -80,11 +80,20 @@ describe('RequestMetadataService', function () {
       });
     });
 
+    it('should understand the -0 argument for HTTP/1.0', function (done) {
+      RequestMetadataService.parseInputRequests('curl http://www.vclfiddle.net -0', function (err, input, allRequests) {
+        if (err) return done(err);
+        expect(allRequests.includedRequests.length).to.equal(1);
+        expect(allRequests.includedRequests[0].summary.httpVersion).to.equal('HTTP/1.0');
+        expect(allRequests.includedRequests[0].payload).to.contain('GET / HTTP/1.0\r\n');
+        done();
+      });
+    });
+
+    it('should understand HTTPS');
     it('should ignore the --compressed arg or ensure that Accept-Encoding header is present');
     it('should ignore understand the POST method and request body');
     it('should show warnings for unsupported or excess curl arguments');
-    it('should understand the -0 argument for HTTP/1.0');
-    it('should understand HTTPS');
     it('should understand --user-agent and --referrer arguments and their shorthand');
 
   });
