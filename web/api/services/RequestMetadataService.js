@@ -171,6 +171,9 @@ function parseCurlCommands(rawInput, callback) {
       } else if (thisHost !== firstHost) {
         req.excludeReason = 'Ignored';
         req.message = 'URL Host does not match first request: ' + thisHost;
+      } else if (parsedUrl.protocol !== 'http:') {
+        req.excludeReason = 'Ignored';
+        req.message = 'Protocol not supported: ' + parsedUrl.protocol;
       } else {
         req.payload = payload + '\r\n';
         req.warnings = warnings;

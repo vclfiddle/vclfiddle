@@ -90,9 +90,18 @@ describe('RequestMetadataService', function () {
       });
     });
 
-    it('should understand HTTPS');
-    it('should ignore the --compressed arg or ensure that Accept-Encoding header is present');
+    it('should understand HTTPS and exclude', function (done) {
+      RequestMetadataService.parseInputRequests('curl https://www.vclfiddle.net', function (err, input, allRequests) {
+        if (err) return done(err);
+        expect(allRequests.excludedRequests.length).to.equal(1);
+        expect(allRequests.excludedRequests[0].excludeReason).to.equal('Ignored');
+        expect(allRequests.excludedRequests[0].message).to.contain('Protocol not supported: https');
+        done();
+      });
+    });
+
     it('should ignore understand the POST method and request body');
+    it('should ignore the --compressed arg or ensure that Accept-Encoding header is present');
     it('should show warnings for unsupported or excess curl arguments');
     it('should understand --user-agent and --referrer arguments and their shorthand');
 
