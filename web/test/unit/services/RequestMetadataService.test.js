@@ -28,6 +28,24 @@ describe('RequestMetadataService', function () {
       });
     });
 
+    it('should parse a curl command with Host header override', function (done) {
+      var argv = RequestMetadataService.parseInputRequests('curl --header "Host: not.vclfiddle.net" http://www.vclfiddle.net', function (err, input, allRequests) {
+        if (err) return done(err);
+        expect(allRequests.includedRequests.length).to.equal(1);
+        expect(allRequests.includedRequests[0].payload).to.contain('Host: not.vclfiddle.net\r\n');
+        expect(allRequests.includedRequests[0].payload).to.not.contain('Host: www.vclfiddle.net\r\n');
+        done();
+      });
+    });
+
+    it('should ignore the --compressed arg or ensure that Accept-Encoding header is present');
+    it('should ignore custom Connection: headers');
+    it('should ignore understand the POST method and request body');
+    it('should show warnings for unsupported or excess curl arguments');
+    it('should categorise some requests as excluded (eg other hosts)');
+    it('should understand the -0 argument for HTTP/1.0');
+    it('should understand HTTPS');
+
   });
 
 });

@@ -126,7 +126,6 @@ function parseCurlCommands(rawInput, callback) {
         var parsedUrl = url.parse(unparsedUrl);
         req.summary.url = unparsedUrl;
         req.payload = [req.summary.method, parsedUrl.path, req.summary.httpVersion].join(' ') + '\r\n';
-        req.payload += 'Host: ' + parsedUrl.host + '\r\n';
         if (parsed.header) {
           // TODO omit Connection header
           // TODO allow Host header to override default
@@ -134,6 +133,9 @@ function parseCurlCommands(rawInput, callback) {
           parsed.header.forEach(function (header) {
             req.payload += header + '\r\n';
           });
+        }
+        if (!req.payload.match(/^host:/mi)) {
+          req.payload += 'Host: ' + parsedUrl.host + '\r\n';
         }
         req.payload += '\r\n';
       }
