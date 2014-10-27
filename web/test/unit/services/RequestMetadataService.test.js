@@ -59,8 +59,27 @@ describe('RequestMetadataService', function () {
       });
     });
 
-    it('should exclude command with missing url');
-    it('should exclude command with invalid url');
+    it('should exclude command with missing url', function (done) {
+      RequestMetadataService.parseInputRequests('curl --header "Host: www.vclfiddle.net"', function (err, input, allRequests) {
+        if (err) return done(err);
+        expect(allRequests.excludedRequests.length).to.equal(1);
+        expect(allRequests.excludedRequests[0].excludeReason).to.equal('Ignored');
+        expect(allRequests.excludedRequests[0].message).to.contain('URL argument missing');
+        done();
+      });
+    });
+
+    it('should exclude command with invalid url', function (done) {
+      RequestMetadataService.parseInputRequests('curl :www.vclfiddle.net', function (err, input, allRequests) {
+        if (err) return done(err);
+        expect(allRequests.excludedRequests.length).to.equal(1);
+        expect(allRequests.excludedRequests[0].excludeReason).to.equal('Ignored');
+        expect(allRequests.excludedRequests[0].message).to.contain('URL argument invalid');
+        expect(allRequests.excludedRequests[0].message).to.contain(':www.vclfiddle.net');
+        done();
+      });
+    });
+
     it('should ignore the --compressed arg or ensure that Accept-Encoding header is present');
     it('should ignore understand the POST method and request body');
     it('should show warnings for unsupported or excess curl arguments');

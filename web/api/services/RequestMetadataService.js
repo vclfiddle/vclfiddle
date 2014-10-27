@@ -119,40 +119,57 @@ function parseCurlCommands(rawInput, callback) {
         sails.log.debug('Line does not begin with a curl command: ' + line);
         return null;
       }
+
+      var thisHost = null;
+      var warnings = [];
+
       var argv = CommandLineService.parseCommandLineToArgv(line);
       var parsed = nopt(knownCurlOpts, curlShortHands, argv, 1);
 
+      var parsedUrl = {};
+      var unparsedUrl = null;
       if (parsed.argv.remain.length >= 1) {
-        var unparsedUrl = parsed.argv.remain[0];
-        var parsedUrl = url.parse(unparsedUrl);
+        unparsedUrl = parsed.argv.remain[0];
+        parsedUrl = url.parse(unparsedUrl);
         req.summary.url = unparsedUrl;
-        req.warnings = [];
-        var payload = [req.summary.method, parsedUrl.path, req.summary.httpVersion].join(' ') + '\r\n';
-        var thisHost = null;
-        if (parsed.header) {
-          // TODO enforce header has 'name: value' pattern
-          parsed.header.forEach(function (header) {
-            if (header.match(/^\s*connection\s*:/i)) {
-              req.warnings.push('Connection request header not supported.');
-            } else {
-              var match = header.match(/^\s*host\s*:\s*(.*)/i);
-              if (match) thisHost = match[1];
-              payload += header + '\r\n';
-            }
-          });
-        }
-        if (!payload.match(/^\s*host\s*:/mi)) {
-          thisHost = parsedUrl.host;
-          payload += 'Host: ' + thisHost + '\r\n';
-        }
-        if (firstHost === null) firstHost = thisHost;
-        if (thisHost !== firstHost) {
-          req.excludeReason = 'Ignored';
-          req.message = 'URL Host does not match first request: ' + thisHost;
-        } else {
-          req.payload = payload + '\r\n';
-        }
+        thisHost = parsedUrl.host;
       }
+
+      var payload = [req.summary.method, parsedUrl.path, req.summary.httpVersion].join(' ') + '\r\n';
+
+      if (parsed.header) {
+        // TODO enforce header has 'name: value' pattern
+        parsed.header.forEach(function (header) {
+          if (header.match(/^\s*connection\s*:/i)) {
+            warnings.push('Connection request header not supported.');
+          } else {
+            var match = header.match(/^\s*host\s*:\s*(.*)/i);
+            if (match) thisHost = match[1];
+            payload += header + '\r\n';
+          }
+        });
+      }
+
+      if (!payload.match(/^\s*host\s*:/mi)) {
+        payload += 'Host: ' + thisHost + '\r\n';
+      }
+
+      if (firstHost === null) firstHost = thisHost;
+
+      if (!unparsedUrl) {
+        req.excludeReason = 'Ignored';
+        req.message = 'URL argument missing';
+      } else if (!parsedUrl.protocol || !parsedUrl.host || !parsedUrl.path) {
+        req.excludeReason = 'Ignored';
+        req.message = 'URL argument invalid: ' + unparsedUrl;
+      } else if (thisHost !== firstHost) {
+        req.excludeReason = 'Ignored';
+        req.message = 'URL Host does not match first request: ' + thisHost;
+      } else {
+        req.payload = payload + '\r\n';
+        req.warnings = warnings;
+      }
+
       return req;
     })
     .filter(function (request) {
