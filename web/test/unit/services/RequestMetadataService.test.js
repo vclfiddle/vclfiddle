@@ -94,15 +94,42 @@ describe('RequestMetadataService', function () {
       RequestMetadataService.parseInputRequests('curl https://www.vclfiddle.net', function (err, input, allRequests) {
         if (err) return done(err);
         expect(allRequests.excludedRequests.length).to.equal(1);
-        expect(allRequests.excludedRequests[0].excludeReason).to.equal('Ignored');
+        expect(allRequests.excludedRequests[0].excludeReason).to.equal('Unsupported');
         expect(allRequests.excludedRequests[0].message).to.contain('Protocol not supported: https');
         done();
       });
     });
 
-    it('should ignore understand the POST method and request body');
-    it('should ignore the --compressed arg or ensure that Accept-Encoding header is present');
-    it('should show warnings for unsupported or excess curl arguments');
+    it('should ignore understand the POST method and request body', function (done) {
+      RequestMetadataService.parseInputRequests('curl http://www.vclfiddle.net --data "login=please"', function (err, input, allRequests) {
+        if (err) return done(err);
+        expect(allRequests.excludedRequests.length).to.equal(1);
+        expect(allRequests.excludedRequests[0].excludeReason).to.equal('Unsupported');
+        expect(allRequests.excludedRequests[0].message).to.contain('Method not supported: POST');
+        done();
+      });
+    });
+
+    it('should ignore the --compressed arg', function (done) {
+      RequestMetadataService.parseInputRequests('curl http://www.vclfiddle.net --compressed', function (err, input, allRequests) {
+        if (err) return done(err);
+        expect(allRequests.includedRequests.length).to.equal(1);
+        expect(allRequests.includedRequests[0].payload).to.equal('GET / HTTP/1.1\r\nHost: www.vclfiddle.net\r\n\r\n');
+        expect(allRequests.includedRequests[0].warnings).to.be.empty;
+        done();
+      });
+    });
+
+    it('should show warnings for unsupported or excess curl arguments', function (done) {
+      RequestMetadataService.parseInputRequests('curl http://www.vclfiddle.net --progress-bar   --next', function (err, input, allRequests) {
+        if (err) return done(err);
+        expect(allRequests.includedRequests.length).to.equal(1);
+        expect(allRequests.includedRequests[0].payload).to.equal('GET / HTTP/1.1\r\nHost: www.vclfiddle.net\r\n\r\n');
+        expect(allRequests.includedRequests[0].warnings).to.contain('Unsupported options: next, progress-bar');
+        done();
+      });
+    });
+
     it('should understand --user-agent and --referrer arguments and their shorthand');
 
   });

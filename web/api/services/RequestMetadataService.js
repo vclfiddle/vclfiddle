@@ -98,11 +98,23 @@ function parseCurlCommands(rawInput, callback) {
 
   const knownCurlOpts = {
     'header': Array,
-    'http1.0': Boolean
+    'http1.0': Boolean,
+    'data': String,
+    'form': String,
+    'get': Boolean,
+    'head': Boolean,
+    'request': String,
+    'compressed': Boolean, // ignored for now maybe TODO add Accept-Encoding header if missing
   };
+  const knownCurlOptionNames = Object.getOwnPropertyNames(knownCurlOpts);
   const curlShortHands = {
     'H': '--header',
-    '0': '--http1.0'
+    '0': '--http1.0',
+    'd': '--data',
+    'F': '--form',
+    'G': '--get',
+    'I': '--head',
+    'X': '--request'
   };
 
   var firstHost = null;
@@ -128,6 +140,18 @@ function parseCurlCommands(rawInput, callback) {
       var argv = CommandLineService.parseCommandLineToArgv(line);
       var parsed = nopt(knownCurlOpts, curlShortHands, argv, 1);
 
+      if (parsed.argv.remain.length >= 2) {
+        warnings.push('Unsupported arguments: ' + parsed.argv.remain.slice(1).join(' '));
+      }
+
+      var unsupportedOptions = Object.getOwnPropertyNames(parsed).filter(function (key) {
+        if (key === 'argv') return false;
+        return knownCurlOptionNames.indexOf(key) < 0;
+      }).sort();
+      if (unsupportedOptions.length > 0) {
+        warnings.push('Unsupported options: ' + unsupportedOptions.join(', '));
+      }
+
       var parsedUrl = {};
       var unparsedUrl = null;
       if (parsed.argv.remain.length >= 1) {
@@ -135,6 +159,14 @@ function parseCurlCommands(rawInput, callback) {
         parsedUrl = url.parse(unparsedUrl);
         req.summary.url = unparsedUrl;
         thisHost = parsedUrl.host;
+      }
+
+      if (parsed.head) {
+        req.summary.method = 'HEAD';
+      } else if (parsed.request) {
+        req.summary.method = parsed.request.toUpperCase();
+      } else if ((parsed.data || parsed.form) && !parsed.get) {
+        req.summary.method = 'POST';
       }
 
       if (parsed['http1.0']) {
@@ -172,8 +204,14 @@ function parseCurlCommands(rawInput, callback) {
         req.excludeReason = 'Ignored';
         req.message = 'URL Host does not match first request: ' + thisHost;
       } else if (parsedUrl.protocol !== 'http:') {
-        req.excludeReason = 'Ignored';
+        req.excludeReason = 'Unsupported';
         req.message = 'Protocol not supported: ' + parsedUrl.protocol;
+      } else if (req.summary.method !== 'GET') {
+        req.excludeReason = 'Unsupported';
+        req.message = 'Method not supported: ' + req.summary.method;
+      } else if (parsed.data || parsed.form) {
+        req.excludeReason = 'Unsupported';
+        req.message = 'Request body not supported.'
       } else {
         req.payload = payload + '\r\n';
         req.warnings = warnings;
@@ -185,7 +223,7 @@ function parseCurlCommands(rawInput, callback) {
       return request !== null;
     });
 
-  var allRequests = { 
+  var allRequests = {
     includedRequests: [],
     excludedRequests: []
   };
