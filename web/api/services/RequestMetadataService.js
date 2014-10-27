@@ -97,10 +97,10 @@ function parseCurlCommands(rawInput, callback) {
   }
 
   const knownCurlOpts = {
-    'header': String
+    'header': Array
   };
   const curlShortHands = {
-    'H': 'header'
+    'H': '--header'
   };
 
   var requests = rawInput.split(/\r?\n/)
@@ -125,8 +125,18 @@ function parseCurlCommands(rawInput, callback) {
         var unparsedUrl = parsed.argv.remain[0];
         var parsedUrl = url.parse(unparsedUrl);
         req.summary.url = unparsedUrl;
+        req.payload = [req.summary.method, parsedUrl.path, req.summary.httpVersion].join(' ') + '\r\n';
+        req.payload += 'Host: ' + parsedUrl.host + '\r\n';
+        if (parsed.header) {
+          // TODO omit Connection header
+          // TODO allow Host header to override default
+          // TODO enforce header validity
+          parsed.header.forEach(function (header) {
+            req.payload += header + '\r\n';
+          });
+        }
+        req.payload += '\r\n';
       }
-      //console.log(parsed);
       return req;
     })
     .filter(function (request) {
