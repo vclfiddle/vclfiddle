@@ -1,4 +1,5 @@
 var url = require('url');
+var nopt = require('nopt');
 
 function convertHarEntriesToRequests (harObject) {
   var requests = [];
@@ -90,6 +91,151 @@ function parseResponse(rawResponse) {
   return responseObject;
 }
 
+function parseCurlCommands(rawInput, callback) {
+  if (typeof rawInput !== 'string' || rawInput.length == 0) {
+    return callback(new Error('rawInput is not a string or is empty.'));
+  }
+
+  const knownCurlOpts = {
+    'header': Array,
+    'http1.0': Boolean,
+    'data': String,
+    'form': String,
+    'get': Boolean,
+    'head': Boolean,
+    'request': String,
+    'compressed': Boolean, // ignored for now maybe TODO add Accept-Encoding header if missing
+  };
+  const knownCurlOptionNames = Object.getOwnPropertyNames(knownCurlOpts);
+  const curlShortHands = {
+    'H': '--header',
+    '0': '--http1.0',
+    'd': '--data',
+    'F': '--form',
+    'G': '--get',
+    'I': '--head',
+    'X': '--request'
+  };
+
+  var firstHost = null;
+  var requests = rawInput.split(/\r?\n/)
+    .map(function (line, entryIndex) {
+      var req = {
+        entryIndex: entryIndex,
+        summary: {
+          method: 'GET',
+          url: null,
+          httpVersion: 'HTTP/1.1'
+        }
+      };
+
+      if (!line.match(/^\s*curl\s+/)) {
+        sails.log.debug('Line does not begin with a curl command: ' + line);
+        return null;
+      }
+
+      var thisHost = null;
+      var warnings = [];
+
+      var argv = CommandLineService.parseCommandLineToArgv(line);
+      var parsed = nopt(knownCurlOpts, curlShortHands, argv, 1);
+
+      if (parsed.argv.remain.length >= 2) {
+        warnings.push('Unsupported arguments: ' + parsed.argv.remain.slice(1).join(' '));
+      }
+
+      var unsupportedOptions = Object.getOwnPropertyNames(parsed).filter(function (key) {
+        if (key === 'argv') return false;
+        return knownCurlOptionNames.indexOf(key) < 0;
+      }).sort();
+      if (unsupportedOptions.length > 0) {
+        warnings.push('Unsupported options: ' + unsupportedOptions.join(', '));
+      }
+
+      var parsedUrl = {};
+      var unparsedUrl = null;
+      if (parsed.argv.remain.length >= 1) {
+        unparsedUrl = parsed.argv.remain[0];
+        parsedUrl = url.parse(unparsedUrl);
+        req.summary.url = unparsedUrl;
+        thisHost = parsedUrl.host;
+      }
+
+      if (parsed.head) {
+        req.summary.method = 'HEAD';
+      } else if (parsed.request) {
+        req.summary.method = parsed.request.toUpperCase();
+      } else if ((parsed.data || parsed.form) && !parsed.get) {
+        req.summary.method = 'POST';
+      }
+
+      if (parsed['http1.0']) {
+        req.summary.httpVersion = 'HTTP/1.0';
+      }
+
+      var payload = [req.summary.method, parsedUrl.path, req.summary.httpVersion].join(' ') + '\r\n';
+
+      if (parsed.header) {
+        // TODO enforce header has 'name: value' pattern
+        parsed.header.forEach(function (header) {
+          if (header.match(/^\s*connection\s*:/i)) {
+            warnings.push('Connection request header not supported.');
+          } else {
+            var match = header.match(/^\s*host\s*:\s*(.*)/i);
+            if (match) thisHost = match[1];
+            payload += header + '\r\n';
+          }
+        });
+      }
+
+      if (!payload.match(/^\s*host\s*:/mi)) {
+        payload += 'Host: ' + thisHost + '\r\n';
+      }
+
+      if (firstHost === null) firstHost = thisHost;
+
+      if (!unparsedUrl) {
+        req.excludeReason = 'Ignored';
+        req.message = 'URL argument missing';
+      } else if (!parsedUrl.protocol || !parsedUrl.host || !parsedUrl.path) {
+        req.excludeReason = 'Ignored';
+        req.message = 'URL argument invalid: ' + unparsedUrl;
+      } else if (thisHost !== firstHost) {
+        req.excludeReason = 'Ignored';
+        req.message = 'URL Host does not match first request: ' + thisHost;
+      } else if (parsedUrl.protocol !== 'http:') {
+        req.excludeReason = 'Unsupported';
+        req.message = 'Protocol not supported: ' + parsedUrl.protocol;
+      } else if (req.summary.method !== 'GET') {
+        req.excludeReason = 'Unsupported';
+        req.message = 'Method not supported: ' + req.summary.method;
+      } else if (parsed.data || parsed.form) {
+        req.excludeReason = 'Unsupported';
+        req.message = 'Request body not supported.'
+      } else {
+        req.payload = payload + '\r\n';
+        req.warnings = warnings;
+      }
+
+      return req;
+    })
+    .filter(function (request) {
+      return request !== null;
+    });
+
+  var allRequests = {
+    includedRequests: [],
+    excludedRequests: []
+  };
+
+  requests.forEach(function (req) {
+    if (req.excludeReason) return allRequests.excludedRequests.push(req);
+    allRequests.includedRequests.push(req);
+  });
+
+  return callback(null, allRequests);
+}
+
 module.exports = {
 
   parseInputRequests: function (rawInput, callback) {
@@ -97,7 +243,14 @@ module.exports = {
     try {
       var parsedHar = JSON.parse(rawInput);
     } catch (ex) {
-      return callback('Failed to parse HAR. ' + ex, rawInput);
+      return parseCurlCommands(rawInput, function (err, allRequests) {
+        if (err) {
+          sails.log.debug('Failed to parse HAR because ' + ex);
+          sails.log.debug('Failed to parse Curl because ' + err);
+          return callback(new Error('Failed to parse requests'), rawInput, null);
+        }
+        return callback(null, rawInput, allRequests);
+      });
     }
 
     return callback(

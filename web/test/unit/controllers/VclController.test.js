@@ -12,7 +12,7 @@ describe('VclController', function () {
         .expect('Content-Type', /json/)
         .end(function (err, res) {
           if (err) return done(err);
-          expect(res.body.log).to.contain('Failed to parse HAR.');
+          expect(res.body.log).to.contain('Failed to parse');
           done();
         });
     });

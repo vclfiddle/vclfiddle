@@ -60,7 +60,7 @@ module.exports = {
           fiddleid: fiddleid,
           vcl: vcl,
           har: rawRequests,
-          log: err
+          log: err.toString()
         }, 'vcl/index');
       }
 
