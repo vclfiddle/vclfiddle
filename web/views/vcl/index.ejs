@@ -152,14 +152,28 @@
       var contentType = resp.headers.filter(function (h) { return h.name.toLowerCase() === 'content-type'; });
       contentType = contentType.length === 0 ? '' : contentType[0].value;
 
-      var resulttbody = tbodyTemplate.clone(); // TODO with events?
+      if (result.request.excludeReason) {
+        responseText = ['(', result.request.excludeReason, ': ', result.request.message, ')'].join(' ');
+      }
+
+      var resulttbody = tbodyTemplate.clone();
       resulttbody.attr('id', '');
       resulttbody.attr('style', '');
       resulttbody.find('td.result-summary-entryIndex').text(result.request.entryIndex);
       resulttbody.find('td.result-summary-request').text(requestText);
-      resulttbody.find('td.result-summary-response').text(responseText);
-      resulttbody.find('td.result-summary-contentType').text(contentType);
-      resulttbody.find('td.result-summary-cache').text(result.ncsa.hitmiss);
+      var responseCell = resulttbody.find('td.result-summary-response');
+      var contentTypeCell = resulttbody.find('td.result-summary-contentType');
+      var cacheCell = resulttbody.find('td.result-summary-cache');
+      if (result.request.excludeReason) {
+        responseText = ['(', result.request.excludeReason, ': ', result.request.message, ')'].join(' ');
+        responseCell.attr('colspan', 3);
+        contentTypeCell.hide();
+        cacheCell.hide();
+      } else {
+        contentTypeCell.text(contentType);
+        cacheCell.text(result.ncsa.hitmiss);
+      }
+      responseCell.text(responseText);
 
       var detailsRow = resulttbody.find('tr.result-details');
       detailsRow.hide();
