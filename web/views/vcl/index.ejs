@@ -139,6 +139,7 @@
   function displayTransactions(results) {
     var table = $('table#transactions');
     var tbodyTemplate = table.find('tbody#results-tbody-template');
+    var toInsertAfter = tbodyTemplate;
     results.forEach(function (result) {
       if (!result.ncsa) result.ncsa = {};
       var reqSumm = result.request.summary;
@@ -166,13 +167,15 @@
       // TODO handle click event on a parent to reduce event handlers
 
       var detailRowTemplate = resulttbody.find('tr#result-details-row-template');
+      var detailToInsertAfter = detailRowTemplate;
       var detailRows = resp.headers.forEach(function (header) {
         var row = detailRowTemplate.clone();
         row.attr('id', '');
         row.attr('style', '');
         row.find('td.result-details-headerName').text(header.name);
         row.find('td.result-details-headerValue').text(header.value);
-        row.insertAfter(detailRowTemplate);
+        row.insertAfter(detailToInsertAfter);
+        detailToInsertAfter = row;
       });
 
       // TODO show ncsa.handling in details
@@ -180,7 +183,8 @@
 
       detailRowTemplate.remove();
 
-      resulttbody.insertAfter(tbodyTemplate); // TODO fix reverse order probably
+      resulttbody.insertAfter(toInsertAfter);
+      toInsertAfter = resulttbody;
     });
   };
 
