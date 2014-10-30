@@ -87,6 +87,7 @@
                   <thead>
                     <tr>
                       <th />
+                      <th>#</th>
                       <th>Request</th>
                       <th>Response</th>
                       <th>Content-Type</th>
@@ -96,6 +97,7 @@
                   <tbody id="results-tbody-template" style="display: none;">
                     <tr class="result-summary">
                       <td class="result-details-toggle">[+]</td>
+                      <td class="result-summary-entryIndex">.</td>
                       <td class="result-summary-request">req</td>
                       <td class="result-summary-response">resp</td>
                       <td class="result-summary-contentType">content</td>
@@ -153,6 +155,7 @@
       var resulttbody = tbodyTemplate.clone(); // TODO with events?
       resulttbody.attr('id', '');
       resulttbody.attr('style', '');
+      resulttbody.find('td.result-summary-entryIndex').text(result.request.entryIndex);
       resulttbody.find('td.result-summary-request').text(requestText);
       resulttbody.find('td.result-summary-response').text(responseText);
       resulttbody.find('td.result-summary-contentType').text(contentType);
