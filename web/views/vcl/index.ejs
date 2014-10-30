@@ -140,9 +140,11 @@
     var table = $('table#transactions');
     var tbodyTemplate = table.find('tbody#results-tbody-template');
     results.forEach(function (result) {
+      if (!result.ncsa) result.ncsa = {};
       var reqSumm = result.request.summary;
       var requestText = [reqSumm.method, reqSumm.url, reqSumm.httpVersion].join(' ');
       var resp = result.response;
+      if (!resp) resp = { headers: [] };
       var responseText = [resp.protocol, resp.code, resp.comment].join(' ');
       var contentType = resp.headers.filter(function (h) { return h.name.toLowerCase() === 'content-type'; });
       contentType = contentType.length === 0 ? '' : contentType[0].value;
@@ -161,6 +163,7 @@
         detailsRow.slideToggle();
       });
       // TODO handle keyboard expansion too
+      // TODO handle click event on a parent to reduce event handlers
 
       var detailRowTemplate = resulttbody.find('tr#result-details-row-template');
       var detailRows = resp.headers.forEach(function (header) {
