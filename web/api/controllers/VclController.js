@@ -106,7 +106,7 @@ module.exports = {
     var vcl = req.body.vcl;
     var rawRequests = req.body.har;
 
-    if (!vcl || !rawRequests) return res.badRequest();
+    if (typeof vcl !== 'string' || typeof rawRequests !== 'string') return res.badRequest();
 
     RequestMetadataService.parseInputRequests(rawRequests, function (err, _ignored, allRequests) {
 
