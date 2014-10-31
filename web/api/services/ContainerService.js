@@ -107,35 +107,47 @@ function readOutputFiles(dirPath, callback) {
 
 }
 
+replayCompleted = function (err, dirPath) {
+
+  var completedData = {
+    completedAt: new Date()
+  };
+
+  if (err) {
+    sails.log.error('Run container error: ' + err);
+    if (err instanceof Error) {
+      completedData.error = err.message;
+    } else {
+      completedData.error = err.toString();
+    }
+  }
+
+  fs.writeFile(path.join(dirPath, 'completed'), JSON.stringify(completedData), { encoding: 'utf8' }, function (err) {
+    if (err) sails.log.error(err);
+  });
+
+}
+
 module.exports = {
 
-  beginReplay: function (dirPath, includedRequests, vclText, callback) {
+  beginReplay: function (dirPath, includedRequests, vclText, hasStartedCallback, hasCompletedCallback) {
+
+    if (typeof hasCompletedCallback !== 'function') {
+      hasCompletedCallback = replayCompleted;
+    }
 
     sails.log.debug('Begin replaying requests with vcl in: ' + dirPath);
 
     writeInputFiles(dirPath, includedRequests, vclText, function (err) {
 
-      if (err) return callback(err);
+      if (err) return hasStartedCallback(err);
 
       runContainer(dirPath, function (err) {
-        var completedData = {
-          completedAt: new Date()
-        };
         sails.log.debug('Run container completed for: ' + dirPath);
-        if (err) {
-          sails.log.error('Run container error: ' + err);
-          if (err instanceof Error) {
-            completedData.error = err.message;
-          } else {
-            completedData.error = err.toString();
-          }
-        }
-        fs.writeFile(path.join(dirPath, 'completed'), JSON.stringify(completedData), { encoding: 'utf8' }, function (err) {
-          if (err) sails.log.error(err);
-        });
+        hasCompletedCallback(err, dirPath);
       });
 
-      callback();
+      hasStartedCallback();
 
     });
 
