@@ -10,6 +10,42 @@ var path = require('path');
 var temp = require('temp');
 var url = require('url');
 
+function completeRun(err, fiddle, allRequests) {
+
+  var completedData = { completedAt: new Date() };
+
+  function writeCompletedData(err) {
+    if (err instanceof Error) {
+      completedData.error = err.message;
+    } else if (err) {
+      completedData.error = err.toString();
+    }
+    fs.writeFile(path.join(fiddle.path, 'completed'), JSON.stringify(completedData), { encoding: 'utf8' }, function (err) {
+      if (err) sails.log.error(err);
+    });
+  }
+
+  if (err) {
+    sails.log.error('Run container error: ' + err);
+    return writeCompletedData(err);
+  }
+
+  ContainerService.readOutputFiles(fiddle.path, function (err, output) {
+    if (err) return writeCompletedData(err);
+    if (output.runlog.length > 0) return writeCompletedData('Error: ' + output.runlog);
+
+    var parsedNcsa = RequestMetadataService.parseVarnish4NCSA(output.varnishncsa);
+
+    var results = RequestMetadataService.correlateResults(allRequests.includedRequests, output.responses, parsedNcsa, null);
+    results = results.concat(allRequests.excludedRequests.map(function (r) { return { request: r }; }));
+
+    completedData.log = output.varnishlog;
+    completedData.results = results;
+    writeCompletedData();
+  });
+
+}
+
 module.exports = {
 	index: function (req, res) {
     const defaultVcl = 'vcl 4.0; backend default { .host = "www.vclfiddle.net"; .port = "80"; }';
@@ -33,6 +69,7 @@ module.exports = {
       if (fiddle === null) return res.notFound();
 
       FiddlePersistenceService.loadViewState(fiddle, function (err, viewState) {
+        if (err) return res.serverError(err);
 
         return res.view({
           fiddleid: fiddle.id,
@@ -70,32 +107,22 @@ module.exports = {
           return res.ok({});
         }
 
-        if (completedData.error) {
-          // complete but failed
-          return res.ok({
-            log: completedData.error
+        FiddlePersistenceService.loadViewState(fiddle, function (err, viewState) {
+          if (err) return res.serverError(err);
+
+          viewState.log = completedData.error || completedData.log,
+          viewState.results = completedData.results
+
+          FiddlePersistenceService.saveViewState(fiddle, viewState, function (err) {
+            if (err) return res.serverError(err);
+
+            return res.ok({
+              log: viewState.log,
+              results: viewState.results
+            });
+
           });
-        }
-
-        var output = completedData.result;
-        if (output.runlog.length > 0) {
-          return res.ok({
-            log: 'Error: ' + output.runlog
-          });
-        }
-
-        var parsedNcsa = RequestMetadataService.parseVarnish4NCSA(output.varnishncsa);
-
-        // TODO recover requests for correlation:
-        var results = [];
-        //var results = RequestMetadataService.correlateResults(allRequests.includedRequests, output.responses, parsedNcsa, null);
-        //results = results.concat(allRequests.excludedRequests.map(function (r) { return { request: r }; }));
-
-        return res.ok({
-          log: output.varnishlog,
-          results: results
         });
-
       });
 
     });
@@ -138,8 +165,7 @@ module.exports = {
         // TODO persist state of 'replay requests twice' option
 
         ContainerService.beginReplay(fiddle.path, allRequests.includedRequests, vcl, function (err) {
-
-          var results = null;
+          // started
 
           var viewState = {
             vcl: vcl,
@@ -162,6 +188,9 @@ module.exports = {
 
           });
 
+        }, function (err) {
+          // completed
+          return completeRun(err, fiddle, allRequests);
         });
 
       });

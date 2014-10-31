@@ -107,27 +107,6 @@ function readOutputFiles(dirPath, callback) {
 
 }
 
-replayCompleted = function (err, dirPath) {
-
-  var completedData = {
-    completedAt: new Date()
-  };
-
-  if (err) {
-    sails.log.error('Run container error: ' + err);
-    if (err instanceof Error) {
-      completedData.error = err.message;
-    } else {
-      completedData.error = err.toString();
-    }
-  }
-
-  fs.writeFile(path.join(dirPath, 'completed'), JSON.stringify(completedData), { encoding: 'utf8' }, function (err) {
-    if (err) sails.log.error(err);
-  });
-
-}
-
 module.exports = {
 
   beginReplay: function (dirPath, includedRequests, vclText, hasStartedCallback, hasCompletedCallback) {
@@ -171,23 +150,11 @@ module.exports = {
         return callback(new Error('Could not parse completion information.'));
       }
 
-      if (completedData.error) {
-        return callback(null, completedData);
-      }
-
-      readOutputFiles(dirPath, function (err, output) {
-        if (err) {
-          sails.log.error(err);
-          return callback(new Error('Could not read output files.'));
-        }
-        completedData.result = output;
-        return callback(null, completedData);
-      });
+      return callback(null, completedData);
 
     });
   },
 
-  for_tests: {
-    readOutputFiles: readOutputFiles
-  }
+  readOutputFiles: readOutputFiles
+
 };
