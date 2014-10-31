@@ -171,32 +171,6 @@ module.exports = {
     });
   },
 
-  replayRequestsWithVcl: function (dirPath, includedRequests, vclText, callback) {
-
-    sails.log.debug('replaying requests with vcl in: ' + dirPath);
-
-    writeInputFiles(dirPath, includedRequests, vclText, function (err) {
-
-      if (err) return callback(err);
-
-      runContainer(dirPath, function (err) {
-
-        if (err) return callback(err);
-
-        readOutputFiles(dirPath, function (err, output) {
-
-          if (err) return callback(err);
-
-          callback(null, output);
-
-        });
-
-      });
-
-    });
-
-  },
-
   for_tests: {
     readOutputFiles: readOutputFiles
   }
