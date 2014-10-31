@@ -12,6 +12,10 @@ function countdownCallback(count, onZeroCallback) {
 
 function writeInputFiles (dirPath, requests, vclText, callback) {
 
+  if (!(requests instanceof Array) || requests.length == 0) {
+    return callback(new Error('At least one request is required'));
+  }
+
   fs.writeFile(path.join(dirPath, 'default.vcl'), vclText, function (err) {
     if (err) return callback(err);
 
