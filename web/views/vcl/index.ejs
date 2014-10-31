@@ -141,6 +141,7 @@
   function displayTransactions(results) {
     var table = $('table#transactions');
     var tbodyTemplate = table.find('tbody#results-tbody-template');
+    // TODO clear rows from last call to this function
     var toInsertAfter = tbodyTemplate;
     results.forEach(function (result) {
       if (!result.ncsa) result.ncsa = {};
@@ -215,13 +216,28 @@
       data: $( "#input" ).serialize(),
       headers: { Accept: "application/json; charset=utf-8"}
     }).done(function( data ) {
-      varnishlog.setValue(data.log);
-      har.setValue(data.har);
-      displayTransactions(data.results);
       hiddenFiddleIdInput.value = data.fiddleid;
       var newFiddleUrl = ['/', data.fiddleid, '/', data.runindex].join('');
       window.history.pushState({fiddleid: data.fiddleid, runindex: data.runindex}, '', newFiddleUrl);
       // TODO handle popState for history navigation
+      varnishlog.setValue(data.log || '');
+      // TODO clear the results table (but keep the hidden template row)
+      // TODO show spinner
+      // TODO queue polling for completion
+      var poll = function () {
+        var resultUrl = ['/vcl/result?fiddleid=', data.fiddleid, '&runindex=', data.runindex].join('');
+        $.getJSON(resultUrl, function (data) {
+          if (data.log) {
+            varnishlog.setValue(data.log);
+            if (data.results) {
+              displayTransactions(data.results);
+            }
+          } else {
+            window.setTimeout(poll, 1000);
+          }
+        });
+      };
+      window.setTimeout(poll, 1000);
     });
   });
   $("#save").click(function (e) {e.preventDefault();});

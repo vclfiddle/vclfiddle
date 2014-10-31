@@ -48,10 +48,65 @@ module.exports = {
 
   },
 
+  result: function (req, res) {
+    var fiddleid = req.query.fiddleid || '';
+    var runindex = req.query.runindex || '0';
+    sails.log(req.query);
+    if (!fiddleid) return res.badRequest();
+
+    FiddlePersistenceService.getFiddleRun(fiddleid, runindex, function (err, fiddle) {
+
+      if (err) return res.serverError(err);
+
+      if (fiddle === null) return res.notFound();
+
+      ContainerService.getReplayResult(fiddle.path, function (err, completedData) {
+        if (err) return res.serverError(err);
+
+        if (!completedData.completedAt) {
+          // not complete yet
+          // TODO timeout if too long to complete
+          // TODO instruct client to cache only briefly if at all
+          return res.ok({});
+        }
+
+        if (completedData.error) {
+          // complete but failed
+          return res.ok({
+            log: completedData.error
+          });
+        }
+
+        var output = completedData.result;
+        if (output.runlog.length > 0) {
+          return res.ok({
+            log: 'Error: ' + output.runlog
+          });
+        }
+
+        var parsedNcsa = RequestMetadataService.parseVarnish4NCSA(output.varnishncsa);
+
+        // TODO recover requests for correlation:
+        var results = [];
+        //var results = RequestMetadataService.correlateResults(allRequests.includedRequests, output.responses, parsedNcsa, null);
+        //results = results.concat(allRequests.excludedRequests.map(function (r) { return { request: r }; }));
+
+        return res.ok({
+          log: output.varnishlog,
+          results: results
+        });
+
+      });
+
+    });
+  },
+
   run: function (req, res) {
     var fiddleid = req.body.fiddleid || '';
     var vcl = req.body.vcl;
     var rawRequests = req.body.har;
+
+    if (!vcl || !rawRequests) return res.badRequest();
 
     RequestMetadataService.parseInputRequests(rawRequests, function (err, _ignored, allRequests) {
 
@@ -80,29 +135,19 @@ module.exports = {
       FiddlePersistenceService.prepareFiddle(fiddleid, function (err, fiddle) {
         if (err) return res.serverError(err);
 
-        // TODO persist state of 'replace requests twice' option
+        // TODO persist state of 'replay requests twice' option
 
-        ContainerService.replayRequestsWithVcl(fiddle.path, allRequests.includedRequests, vcl, function (err, output) {
+        ContainerService.beginReplay(fiddle.path, allRequests.includedRequests, vcl, function (err) {
 
-          var log = '';
           var results = null;
-          if (err) {
-            log = 'Error: ' + err;
-          } else if (output.runlog.length > 0) {
-            log = 'Error: ' + output.runlog;
-          } else {
-            log = output.varnishlog; // TODO parse and format
-            var parsedNcsa = RequestMetadataService.parseVarnish4NCSA(output.varnishncsa);
-            results = RequestMetadataService.correlateResults(allRequests.includedRequests, output.responses, parsedNcsa, null);
-            results = results.concat(allRequests.excludedRequests.map(function (r) { return { request: r }; }));
-          }
 
           var viewState = {
             vcl: vcl,
-            har: rawRequests,
-            log: log,
-            results: results,
+            har: rawRequests
           };
+          if (err) {
+            viewState.log = 'Error: ' + err;
+          }
 
           FiddlePersistenceService.saveViewState(fiddle, viewState, function (err) {
             if (err) return res.serverError(err);
@@ -112,9 +157,8 @@ module.exports = {
               runindex: fiddle.runIndex,
               vcl: viewState.vcl,
               har: viewState.har,
-              log: viewState.log,
-              results: viewState.results
-            }, 'vcl/index');
+              log: viewState.log
+            });
 
           });
 

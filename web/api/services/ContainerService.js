@@ -105,6 +105,72 @@ function readOutputFiles(dirPath, callback) {
 
 module.exports = {
 
+  beginReplay: function (dirPath, includedRequests, vclText, callback) {
+
+    sails.log.debug('Begin replaying requests with vcl in: ' + dirPath);
+
+    writeInputFiles(dirPath, includedRequests, vclText, function (err) {
+
+      if (err) return callback(err);
+
+      runContainer(dirPath, function (err) {
+        var completedData = {
+          completedAt: new Date()
+        };
+        sails.log.debug('Run container completed for: ' + dirPath);
+        if (err) {
+          sails.log.error('Run container error: ' + err);
+          if (err instanceof Error) {
+            completedData.error = err.message;
+          } else {
+            completedData.error = err.toString();
+          }
+        }
+        fs.writeFile(path.join(dirPath, 'completed'), JSON.stringify(completedData), { encoding: 'utf8' }, function (err) {
+          if (err) sails.log.error(err);
+        });
+      });
+
+      callback();
+
+    });
+
+  },
+
+  getReplayResult: function (dirPath, callback) {
+    fs.readFile(path.join(dirPath, 'completed'), { encoding: "utf8" }, function (err, data) {
+      if (err) {
+        if (err instanceof Error && err.code === 'ENOENT') {
+          // not completed yet
+          return callback(null, {});
+        }
+        sails.log.error(err);
+        return callback(new Error('Could not read completion information.'));
+      }
+
+      try {
+        var completedData = JSON.parse(data);
+      } catch (err) {
+        sails.log.error(err);
+        return callback(new Error('Could not parse completion information.'));
+      }
+
+      if (completedData.error) {
+        return callback(null, completedData);
+      }
+
+      readOutputFiles(dirPath, function (err, output) {
+        if (err) {
+          sails.log.error(err);
+          return callback(new Error('Could not read output files.'));
+        }
+        completedData.result = output;
+        return callback(null, completedData);
+      });
+
+    });
+  },
+
   replayRequestsWithVcl: function (dirPath, includedRequests, vclText, callback) {
 
     sails.log.debug('replaying requests with vcl in: ' + dirPath);
