@@ -65,6 +65,7 @@
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
+                <div class="spinner"><img src="/images/spinner.gif" width="128" height="78" alt="Please wait." /></div>
                 <div class="editor"><textarea class="form-control" id="varnishlog"><%= log %></textarea><span class="window-label">varnishlog</span></div>
               </div>
             </div>
@@ -83,6 +84,7 @@
           <div class="row">
             <div class="col-md-12">
               <div class="form-group">
+                <div class="spinner"><img src="/images/spinner.gif" width="128" height="78" alt="Please wait." /></div>
                 <table class="form-control results" id="transactions">
                   <thead>
                     <tr>
@@ -137,6 +139,13 @@
   var har = CodeMirror.fromTextArea(document.getElementById("har"), { lineNumbers: true, mode: {name: "javascript", json: true} });
   var varnishlog = CodeMirror.fromTextArea(document.getElementById("varnishlog"), { lineNumbers: true, mode: {name: "javascript", json: true}, readOnly: true });
   var hiddenFiddleIdInput = document.getElementById('fiddleid');
+
+  function clearTransactions() {
+    var table = $('table#transactions');
+    var tbodyTemplate = table.find('tbody#results-tbody-template');
+    var otherTbodies = table.find('tbody:not(#results-tbody-template)');
+    otherTbodies.remove();
+  }
 
   function displayTransactions(results) {
     var table = $('table#transactions');
@@ -215,13 +224,28 @@
       data: $( "#input" ).serialize(),
       headers: { Accept: "application/json; charset=utf-8"}
     }).done(function( data ) {
-      varnishlog.setValue(data.log);
-      har.setValue(data.har);
-      displayTransactions(data.results);
       hiddenFiddleIdInput.value = data.fiddleid;
       var newFiddleUrl = ['/', data.fiddleid, '/', data.runindex].join('');
       window.history.pushState({fiddleid: data.fiddleid, runindex: data.runindex}, '', newFiddleUrl);
       // TODO handle popState for history navigation
+      varnishlog.setValue(data.log || '');
+      clearTransactions();
+      $('.spinner img').fadeIn();
+      var poll = function () {
+        var resultUrl = ['/vcl/result?fiddleid=', data.fiddleid, '&runindex=', data.runindex].join('');
+        $.getJSON(resultUrl, function (data) {
+          if (data.log) {
+            $('.spinner img').fadeOut();
+            varnishlog.setValue(data.log);
+            if (data.results) {
+              displayTransactions(data.results);
+            }
+          } else {
+            window.setTimeout(poll, 1000);
+          }
+        });
+      };
+      window.setTimeout(poll, 1000);
     });
   });
   $("#save").click(function (e) {e.preventDefault();});
@@ -262,5 +286,12 @@
     position: absolute;
     top: 10px;
     right: 30px;
+  }
+  .spinner img {
+    position: absolute;
+    z-index: 10;
+    left: 40%;
+    top: 25%;
+    display: none;
   }
 </style>

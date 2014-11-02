@@ -49,3 +49,6 @@ cd /var/www && forever start app.js
 
 # test the app
 sudo npm install --global mocha
+
+#sudo rsync -av /vagrant/web/ /var/web/ && cd /var/web && sudo npm install && npm test
+#sudo rsync -av /vagrant/web/ /var/web/ && cd /var/web && node app.js

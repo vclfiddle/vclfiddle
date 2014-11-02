@@ -12,6 +12,10 @@ function countdownCallback(count, onZeroCallback) {
 
 function writeInputFiles (dirPath, requests, vclText, callback) {
 
+  if (!(requests instanceof Array) || requests.length == 0) {
+    return callback(new Error('At least one request is required'));
+  }
+
   fs.writeFile(path.join(dirPath, 'default.vcl'), vclText, function (err) {
     if (err) return callback(err);
 
@@ -105,33 +109,52 @@ function readOutputFiles(dirPath, callback) {
 
 module.exports = {
 
-  replayRequestsWithVcl: function (dirPath, includedRequests, vclText, callback) {
+  beginReplay: function (dirPath, includedRequests, vclText, hasStartedCallback, hasCompletedCallback) {
 
-    sails.log.debug('replaying requests with vcl in: ' + dirPath);
+    if (typeof hasCompletedCallback !== 'function') {
+      hasCompletedCallback = replayCompleted;
+    }
+
+    sails.log.debug('Begin replaying requests with vcl in: ' + dirPath);
 
     writeInputFiles(dirPath, includedRequests, vclText, function (err) {
 
-      if (err) return callback(err);
+      if (err) return hasStartedCallback(err);
 
       runContainer(dirPath, function (err) {
-
-        if (err) return callback(err);
-
-        readOutputFiles(dirPath, function (err, output) {
-
-          if (err) return callback(err);
-
-          callback(null, output);
-
-        });
-
+        sails.log.debug('Run container completed for: ' + dirPath);
+        hasCompletedCallback(err, dirPath);
       });
+
+      hasStartedCallback();
 
     });
 
   },
 
-  for_tests: {
-    readOutputFiles: readOutputFiles
-  }
+  getReplayResult: function (dirPath, callback) {
+    fs.readFile(path.join(dirPath, 'completed'), { encoding: "utf8" }, function (err, data) {
+      if (err) {
+        if (err instanceof Error && err.code === 'ENOENT') {
+          // not completed yet
+          return callback(null, {});
+        }
+        sails.log.error(err);
+        return callback(new Error('Could not read completion information.'));
+      }
+
+      try {
+        var completedData = JSON.parse(data);
+      } catch (err) {
+        sails.log.error(err);
+        return callback(new Error('Could not parse completion information.'));
+      }
+
+      return callback(null, completedData);
+
+    });
+  },
+
+  readOutputFiles: readOutputFiles
+
 };
