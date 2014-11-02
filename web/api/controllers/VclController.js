@@ -88,7 +88,6 @@ module.exports = {
   result: function (req, res) {
     var fiddleid = req.query.fiddleid || '';
     var runindex = req.query.runindex || '0';
-    sails.log(req.query);
     if (!fiddleid) return res.badRequest();
 
     FiddlePersistenceService.getFiddleRun(fiddleid, runindex, function (err, fiddle) {
