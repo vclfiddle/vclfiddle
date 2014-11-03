@@ -1,5 +1,4 @@
 #VclFiddle
-=========
 
 VclFiddle is an online tool for experimenting with the
 [Varnish Cache](https://www.varnish-cache.org/) HTTP reverse-proxy in a
