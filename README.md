@@ -1,5 +1,4 @@
 #VclFiddle
-=========
 
 VclFiddle is an online tool for experimenting with the
 [Varnish Cache](https://www.varnish-cache.org/) HTTP reverse-proxy in a
@@ -50,3 +49,56 @@ depend upon how it gets used. However our current plans include:
 
 You can add comments to existing issues, or submit new issues, to let us know
 how you would like VclFiddle to evolve.
+
+##How It Works
+
+VclFiddle consists of a Node.js web application, built with the Sails.js MVC
+framework. It is currently hosted with PM2, behind an NGINX proxy.
+
+When the VCL and the cURL (or HAR) are submitted, the application first converts
+the requests from their input format to their raw TCP format. A new Fiddle ID
+is generated with a corresponding local working directory and the VCL and the
+converted requests are written to files in that directory.
+
+Next, a Docker container is started, based on a pre-built image for the
+specified Varnish version, with a Docker Volume used to map the Fiddle working
+directory into the container.
+
+The container is responsible for starting and configuring a Varnish instance
+within itself using the provided VCL file
+and then transmitting the raw request files via NetCat to the TCP port within
+the container that Varnish is listening on. The container captures the response
+headers returned on the TCP connection, saving them to files in the same
+volume-mapped directory. The varnishlog is also saved and the container exits.
+
+When the Docker container is done, the web application parses the files
+saved into the working directory and makes the information available to the
+user.
+
+##Supporting more Varnish versions
+
+VclFiddle currently only supports Varnish 4.0 as provided by the public
+Varnish Cache package repository. Support for other Varnish versions, or
+compilations, is planned and is intended to implemented by adding more
+Docker images following a simple contract.
+
+* Inside the container will be a '/fiddle' directory. When the container starts,
+it can expect two sets of items inside this directory:
+  * A 'default.vcl' file containing the VCL submitted by the user.
+  * A numbered set of 'request_*' files containing the raw HTTP request to be
+submitted to the Varnish instance.
+* The container's entry process should:
+  1. Start Varnish and any other required processes (eg Varnishlog).
+  1. Configure Varnish using the '/fiddle/default.vcl' file.
+  1. Submit the contents of each '/fiddle/request_*' file to Varnish, in order
+of the file's numerical suffix.
+  1. Capture the response headers resulting from each request into files named
+'/fiddle/response_*' where the suffix corresponds the 'request_*' file suffix.
+  1. Record the final output of Varnishlog to '/fiddle/varnishlog'.
+  1. Record the final output of Varnishncsa to '/fiddle/varnishncsa'.
+  1. Record all critical failures to '/fiddle/run.log'.
+  1. Record any debug information to '/fiddle/debug.log'.
+* A non-empty run.log will cause the Fiddle to be considered failed. The contents
+will be reported to the user and all 'response_*' files will be ignored.
+* Container run-time limits will eventually be imposed, and user experience is
+important, so container start-up overhead should be minimised.
