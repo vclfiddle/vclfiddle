@@ -152,7 +152,7 @@
     var tbodyTemplate = table.find('tbody#results-tbody-template');
     var toInsertAfter = tbodyTemplate;
     results.forEach(function (result) {
-      if (!result.ncsa) result.ncsa = {};
+      if (!result.ncsa) result.ncsa = { hitmiss: '(unknown)' };
       var reqSumm = result.request.summary;
       var requestText = [reqSumm.method, reqSumm.url, reqSumm.httpVersion].join(' ');
       var resp = result.response;
