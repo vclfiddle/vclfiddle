@@ -49,3 +49,28 @@ depend upon how it gets used. However our current plans include:
 
 You can add comments to existing issues, or submit new issues, to let us know
 how you would like VclFiddle to evolve.
+
+##How It Works
+
+VclFiddle consists of a Node.js web application, built with the Sails.js MVC
+framework. It is currently hosted with PM2, behind an NGINX proxy.
+
+When the VCL and the cURL (or HAR) are submitted, the application first converts
+the requests from their input format to their raw TCP format. A new Fiddle ID
+is generated with a corresponding local working directory and the VCL and the
+converted requests are written to files in that directory.
+
+Next, a Docker container is started, based on a pre-built image for the
+specified Varnish version, with a Docker Volume used to map the Fiddle working
+directory into the container.
+
+The container is responsible for starting and configuring a Varnish instance
+within itself using the provided VCL file
+and then transmitting the raw request files via NetCat to the TCP port within
+the container that Varnish is listening on. The container captures the response
+headers returned on the TCP connection, saving them to files in the same
+volume-mapped directory. The varnishlog is also saved and the container exits.
+
+When the Docker container is done, the web application parses the files
+saved into the working directory and makes the information available to the
+user.
