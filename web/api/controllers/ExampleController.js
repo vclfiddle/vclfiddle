@@ -10,12 +10,11 @@ sub vcl_backend_response {
   if (beresp.http.Content-Type ~ "^image/") {
     set beresp.http.Cache-Control = "public, max-age=300";
     set beresp.ttl = 300s;
-    return (deliver);
-    }
+  }
 }
 */
 /* curl:
-curl "http://www.vclfiddle.net/"
+curl "http://www.vclfiddle.net/example/one"
 */
     req.session = null; // don't send Set-Cookie: sails.sid=
     return res
