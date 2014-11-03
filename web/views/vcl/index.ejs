@@ -218,6 +218,7 @@
     e.preventDefault();
     vcl.save();
     har.save();
+    $('.spinner img').fadeIn();
     $.ajax({
       type: "POST",
       url: "/vcl/run",
@@ -230,7 +231,6 @@
       // TODO handle popState for history navigation
       varnishlog.setValue(data.log || '');
       clearTransactions();
-      $('.spinner img').fadeIn();
       var poll = function () {
         var resultUrl = ['/vcl/result?fiddleid=', data.fiddleid, '&runindex=', data.runindex].join('');
         $.getJSON(resultUrl, function (data) {
