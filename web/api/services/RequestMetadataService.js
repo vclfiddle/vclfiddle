@@ -274,7 +274,7 @@ module.exports = {
         handling: null,
       };
 
-      var fields = line.split(/\s+/);
+      var fields = line.split(/\t/);
       try {
         if (fields.length >= 1) result.vxid = fields[0];
         if (fields.length >= 5) result.hitmiss = fields[4];
