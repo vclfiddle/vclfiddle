@@ -74,3 +74,31 @@ volume-mapped directory. The varnishlog is also saved and the container exits.
 When the Docker container is done, the web application parses the files
 saved into the working directory and makes the information available to the
 user.
+
+##Supporting more Varnish versions
+
+VclFiddle currently only supports Varnish 4.0 as provided by the public
+Varnish Cache package repository. Support for other Varnish versions, or
+compilations, is planned and is intended to implemented by adding more
+Docker images following a simple contract.
+
+* Inside the container will be a '/fiddle' directory. When the container starts,
+it can expect two sets of items inside this directory:
+  * A 'default.vcl' file containing the VCL submitted by the user.
+  * A numbered set of 'request_*' files containing the raw HTTP request to be
+submitted to the Varnish instance.
+* The container's entry process should:
+  1. Start Varnish and any other required processes (eg Varnishlog).
+  1. Configure Varnish using the '/fiddle/default.vcl' file.
+  1. Submit the contents of each '/fiddle/request_*' file to Varnish, in order
+of the file's numerical suffix.
+  1. Capture the response headers resulting from each request into files named
+'/fiddle/response_*' where the suffix corresponds the 'request_*' file suffix.
+  1. Record the final output of Varnishlog to '/fiddle/varnishlog'.
+  1. Record the final output of Varnishncsa to '/fiddle/varnishncsa'.
+  1. Record all critical failures to '/fiddle/run.log'.
+  1. Record any debug information to '/fiddle/debug.log'.
+* A non-empty run.log will cause the Fiddle to be considered failed. The contents
+will be reported to the user and all 'response_*' files will be ignored.
+* Container run-time limits will eventually be imposed, and user experience is
+important, so container start-up overhead should be minimised.
