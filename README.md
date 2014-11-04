@@ -97,8 +97,24 @@ of the file's numerical suffix.
   1. Record the final output of Varnishlog to '/fiddle/varnishlog'.
   1. Record the final output of Varnishncsa to '/fiddle/varnishncsa'.
   1. Record all critical failures to '/fiddle/run.log'.
-  1. Record any debug information to '/fiddle/debug.log'.
-* A non-empty run.log will cause the Fiddle to be considered failed. The contents
-will be reported to the user and all 'response_*' files will be ignored.
-* Container run-time limits will eventually be imposed, and user experience is
-important, so container start-up overhead should be minimised.
+  1. Record any diagnostic information to '/fiddle/debug.log'. This will not be
+parsed or displayed anywhere.
+* A non-empty run.log will cause the Fiddle to be considered failed. The
+contents will be reported to the user and all 'response_*' files will be
+ignored.
+* The 'varnishlog' file will be displayed to the end user in its raw format. It
+should at least include the Varnish Transaction Identifier (VXID) to aid manual
+correlation with responses.
+* The 'response_*' files will be parsed for HTTP response code and headers and
+correlated with the request with the same file name index.
+* The 'varnishncsa' log will be parsed to determine whether a response was a
+cache hit or miss. It should be formatted with tab-delimited fields in this
+order :
+  1. Value of the 'X-Varnish' response header (ie the VXID).
+  1. Total time to serve the request, in seconds.
+  1. Total bytes sent to the client (or fallback to response body bytes).
+  1. Time until first byte is sent to the client.
+  1. Cache hit or miss.
+  1. Handling method (ie hit, miss, pass, pipe or error).
+* Container run-time limits will eventually be imposed, and a fast user
+experience is important, so container start-up overhead should be minimised.

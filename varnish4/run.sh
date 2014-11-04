@@ -30,7 +30,7 @@ varnishlog -D -v -w /fiddle/varnishlog -P /run/varnishlog.pid 2>&1 >>/fiddle/run
 debuglog "Started varnishlog"
 
 debuglog "Starting varnishncsa"
-NCSA_FORMAT='%{X-Varnish}o %T %O %{Varnish:time_firstbyte}x %{Varnish:hitmiss}x %{Varnish:handling}x'
+NCSA_FORMAT='%{X-Varnish}o\t%T\t%O\t%{Varnish:time_firstbyte}x\t%{Varnish:hitmiss}x\t%{Varnish:handling}x'
 varnishncsa -D -w /fiddle/varnishncsa -P /run/varnishncsa.pid -F "$NCSA_FORMAT" 2>&1 >>/fiddle/run.log || exit $?
 debuglog "Started varnishncsa"
 
