@@ -32,6 +32,7 @@ debuglog "Started varnishlog"
 debuglog "Starting varnishncsa"
 NCSA_FORMAT='%{X-Varnish}o\t%T\t%b\t%{Varnish:time_firstbyte}x\t%{Varnish:hitmiss}x\t%{Varnish:handling}x'
 varnishncsa -D -w /fiddle/varnishncsa -P /run/varnishncsa.pid -F "$NCSA_FORMAT" 2>&1 >>/fiddle/run.log || exit $?
+#TODO make sure varnishncsa is started and ready to log first request
 debuglog "Started varnishncsa"
 
 debuglog "Executing requests"
