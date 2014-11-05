@@ -160,6 +160,8 @@
       var responseText = [resp.protocol, resp.code, resp.comment].join(' ');
       var contentType = resp.headers.filter(function (h) { return h.name.toLowerCase() === 'content-type'; });
       contentType = contentType.length === 0 ? '' : contentType[0].value;
+      var contentTypeSemicolonIndex = contentType.indexOf(';');
+      if (contentTypeSemicolonIndex >= 0) contentType = contentType.substring(0, contentTypeSemicolonIndex);
 
       if (result.request.excludeReason) {
         responseText = ['(', result.request.excludeReason, ': ', result.request.message, ')'].join(' ');
