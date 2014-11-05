@@ -13,6 +13,7 @@
   </div>
 </header>
 <div class="container-fluid">
+  <form id="input">
   <div class="row">
     <div class="col-md-2">
       <div class="accordion" id="accordion2">
@@ -25,13 +26,11 @@
           <div id="collapseOne" class="accordion-body collapse in">
             <div class="accordion-inner">
               <div class="dropdown">
-                <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown">
-                  Varnish 4.0.2
-                  <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-                  <li role="presentation"><a role="menuitem" tabindex="-1" href="#">Varnish 4.0.2</a></li>
-                </ul>
+                <select name="image" id="docker-image">
+                  <option value="varnish4" selected="selected">Varnish 4.0.2</option>
+                  <option value="varnish3">Varnish 3.0.6</option>
+                </select>
+                <!-- TODO ensure this dropdown is set to the correct Varnish version for existing fiddles -->
               </div>
             </div>
           </div>
@@ -51,7 +50,6 @@
       </div>
     </div>
     <div class="col-md-10">
-      <form id="input">
       <input id="fiddleid" type="hidden" name="fiddleid" value="<%= fiddleid || '' %>" />
       <div class="row">
         <div class="col-md-6">
@@ -125,9 +123,9 @@
           </div>
         </div>
       </div>
-      </form>
     </div>
   </div>
+  </form>
 </div>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <script src="/js/bootstrap.min.js" rel="stylesheet"></script>

@@ -41,7 +41,7 @@ describe('ContainerService', function () {
       const includedRequests = [{payload: ''}];
       const vclText = '';
       var startedAt = null;
-      ContainerService.beginReplay(testDir, includedRequests, vclText, function (err) {
+      ContainerService.beginReplay(testDir, includedRequests, vclText, 'varnish4', function (err) {
         // started
         if (err) return done(err);
         startedAt = new Date();
