@@ -39,11 +39,12 @@ function convertHarEntriesToRequests (harObject) {
       req.payload = entry.request.method + ' ' + parsedUrl.path + ' ' + entry.request.httpVersion + '\r\n';
       entry.request.headers.forEach(function (header) {
         if (header.name.toLowerCase() == 'connection') {
-          req.warnings.push('Connection request header not supported.');
+          if (header.value.toLowerCase() != 'close') req.warnings.push('Connection request header not supported.');
         } else {
           req.payload += header.name + ': ' + header.value + '\r\n';
         }
       });
+      req.payload += 'Connection: close\r\n';
       req.payload += '\r\n';
       requests.push(req);
     }
@@ -191,6 +192,7 @@ function parseCurlCommands(rawInput, callback) {
       if (!payload.match(/^\s*host\s*:/mi)) {
         payload += 'Host: ' + thisHost + '\r\n';
       }
+      payload += 'Connection: close\r\n';
 
       if (firstHost === null) firstHost = thisHost;
 

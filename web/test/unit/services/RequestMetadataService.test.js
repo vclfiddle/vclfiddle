@@ -12,7 +12,7 @@ describe('RequestMetadataService', function () {
         expect(allRequests.includedRequests[0].summary.method).to.equal('GET');
         expect(allRequests.includedRequests[0].summary.url).to.equal('http://www.vclfiddle.net');
         expect(allRequests.includedRequests[0].summary.httpVersion).to.equal('HTTP/1.1');
-        expect(allRequests.includedRequests[0].payload).to.equal('GET / HTTP/1.1\r\nHost: www.vclfiddle.net\r\n\r\n');
+        expect(allRequests.includedRequests[0].payload).to.equal('GET / HTTP/1.1\r\nHost: www.vclfiddle.net\r\nConnection: close\r\n\r\n');
         done();
       });
     });
@@ -42,7 +42,7 @@ describe('RequestMetadataService', function () {
       RequestMetadataService.parseInputRequests('curl --header "Connection: Upgrade" http://www.vclfiddle.net', function (err, input, allRequests) {
         if (err) return done(err);
         expect(allRequests.includedRequests.length).to.equal(1);
-        expect(allRequests.includedRequests[0].payload).to.not.contain('Connection:');
+        expect(allRequests.includedRequests[0].payload).to.not.contain('pgrade');
         expect(allRequests.includedRequests[0].warnings).to.contain('Connection request header not supported.');
         done();
       });
@@ -114,7 +114,7 @@ describe('RequestMetadataService', function () {
       RequestMetadataService.parseInputRequests('curl http://www.vclfiddle.net --compressed', function (err, input, allRequests) {
         if (err) return done(err);
         expect(allRequests.includedRequests.length).to.equal(1);
-        expect(allRequests.includedRequests[0].payload).to.equal('GET / HTTP/1.1\r\nHost: www.vclfiddle.net\r\n\r\n');
+        expect(allRequests.includedRequests[0].payload).to.not.contain('Accept-Encoding:');
         expect(allRequests.includedRequests[0].warnings).to.be.empty;
         done();
       });
@@ -124,7 +124,7 @@ describe('RequestMetadataService', function () {
       RequestMetadataService.parseInputRequests('curl http://www.vclfiddle.net --progress-bar   --next', function (err, input, allRequests) {
         if (err) return done(err);
         expect(allRequests.includedRequests.length).to.equal(1);
-        expect(allRequests.includedRequests[0].payload).to.equal('GET / HTTP/1.1\r\nHost: www.vclfiddle.net\r\n\r\n');
+        expect(allRequests.includedRequests[0].payload).to.contain('GET / HTTP/1.1\r\nHost: www.vclfiddle.net\r\n');
         expect(allRequests.includedRequests[0].warnings).to.contain('Unsupported options: next, progress-bar');
         done();
       });
