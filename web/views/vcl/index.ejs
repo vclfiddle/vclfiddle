@@ -183,6 +183,7 @@
       } else {
         contentTypeCell.text(contentType);
         cacheCell.text(result.ncsa.hitmiss);
+        cacheCell.addClass('cache-' + result.ncsa.hitmiss);
       }
       responseCell.text(responseText);
 
@@ -310,5 +311,16 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  table#transactions td.result-summary-cache {
+    text-align: center;
+  }
+  table#transactions td.cache-miss {
+    background-color: #de1d1d;
+    color: white;
+  }
+  table#transactions td.cache-hit {
+    background-color: #1e9753;
+    color: white;
   }
 </style>
