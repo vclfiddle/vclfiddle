@@ -27,6 +27,58 @@ and a permalink to this information is made available for sharing.
 
 VclFiddle is hosted at http://www.vclfiddle.net/.
 
+## How To Use VclFiddle
+
+VclFiddle exposes a very direct interface to the Varnish instance used
+internally. You provide the VCL exactly as you would for a self-managed Varnish
+instance and in return you get an unprocessed Varnishlog output.
+
+You can find the documentation for VCL for each Varnish version here:
+
+* [Varnish 4.0](https://www.varnish-cache.org/docs/4.0/reference/vcl.html)
+* [Varnish 3.0](https://www.varnish-cache.org/docs/3.0/reference/vcl.html)
+
+VclFiddle currently pre-fills the VCL editor with the minimum required for
+Varnish 4.0. If you choose another Varnish Version instead you will need to
+replace the default VCL with the appropriate VCL syntax for your chosen version.
+
+Note that Varnish does not support a backend specified by DNS name if that name
+resolves to multiple IP addresses. In this instance, choose one of the possible
+IP addresses to specify directly.
+
+Similarly, the HTTP requests that will be sent to the Varnish instance need to
+be expressed in a direct manner. The first format (of currently two) supported
+is the simulated [cURL](http://curl.haxx.se/docs/manpage.html) command line.
+
+You enter a single cURL command per line and the requests will be executed in
+the order specified. There should be enough common cURL arguments recognised
+to produce most HTTP requests. You will find 'Copy as cURL' options in the
+Chrome and Firefox developer tools.
+
+The second format supported is HTTP Archive, or
+[HAR](http://www.softwareishard.com/blog/har-12-spec/). This is a JSON-based
+format that is not as easy to hand-craft as cURL. You can obtain HAR from the
+Chrome developer tools 'Copy all as HAR' option, from
+[Fiddler](http://www.telerik.com/fiddler)'s Export Sessions menu, and several
+other tools.
+
+VclFiddle will automatically detect whether you have entered requests using
+cURL or HAR format, just don't use a combination of both in one Fiddle.
+
+When using VclFiddle, each Run will use a new instance of Varnish with an empty
+cache therefore it is common to perform the specified set of requests twice -
+the first time to populate the empty cache, the second time to verify the
+expected cache hit or miss behaviour. Rather than expecting you to duplicate
+the requests specified manually, VclFiddle offers a 'Replay requests twice'
+checkbox which will do this automatically for your convenience.
+
+Once you have specified the VCL and requests to use, click the 'Run' button
+at the top of the page to send these to the VclFiddle server for processing.
+Within 5 to 10 seconds, or longer for large or many requests, the results will
+be displayed. These results will be the raw varnishlog applicable to your chosen
+Varnish version and a summary of the HTTP response headers and cache hit/miss
+status for each request.
+
 ##Contributors
 
 VclFiddle was started by [Jason Stangroome](https://twitter.com/jstangroome) and
