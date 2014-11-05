@@ -6,7 +6,8 @@ function debuglog {
 
 function varnishcommand {
   debuglog "Executing Varnish command: $@"
-  /usr/bin/varnishadm -T 127.0.0.1:6082 -S /etc/varnish/secret $@ 2>>/fiddle/run.log || exit $?
+  /usr/bin/varnishadm -T 127.0.0.1:6082 -S /etc/varnish/secret $@ >/tmp/varnishcommand.log 2>>/fiddle/run.log ||
+    { EXITCODE=$?; cat /tmp/varnishcommand.log >>/fiddle/run.log; exit $EXITCODE; }
   debuglog "Executed Varnish command: $@"
 }
 
