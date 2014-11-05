@@ -131,6 +131,13 @@ module.exports = {
     var fiddleid = req.body.fiddleid || '';
     var vcl = req.body.vcl;
     var rawRequests = req.body.har;
+    var dockerImage = req.body.image || 'varnish4';
+
+    const supportedImages = ['varnish4', 'varnish3'];
+    if (supportedImages.indexOf(dockerImage) < 0) {
+      sails.log.warn('Invalid image parameter:' + dockerImage);
+      return res.badRequest();
+    }
 
     if (typeof vcl !== 'string' || typeof rawRequests !== 'string') return res.badRequest();
 
@@ -163,10 +170,11 @@ module.exports = {
 
         // TODO persist state of 'replay requests twice' option
 
-        ContainerService.beginReplay(fiddle.path, allRequests.includedRequests, vcl, function (err) {
+        ContainerService.beginReplay(fiddle.path, allRequests.includedRequests, vcl, dockerImage, function (err) {
           // started
 
           var viewState = {
+            image: dockerImage,
             vcl: vcl,
             har: rawRequests
           };

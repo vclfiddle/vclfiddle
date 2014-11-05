@@ -34,10 +34,9 @@ function writeInputFiles (dirPath, requests, vclText, callback) {
 
 }
 
-function runContainer (dirPath, callback) {
+function runContainer (dirPath, dockerImageName, callback) {
 
   var dockerTimeoutMillseconds = 30 * 1000;
-  var dockerImageName = 'varnish4';
   child_process.execFile('/opt/vclfiddle/run-varnish-container', [dockerImageName, dirPath], {timeout: dockerTimeoutMillseconds}, function(err, stdout, stderr) {
     if (err) return callback(err);
 
@@ -109,7 +108,7 @@ function readOutputFiles(dirPath, callback) {
 
 module.exports = {
 
-  beginReplay: function (dirPath, includedRequests, vclText, hasStartedCallback, hasCompletedCallback) {
+  beginReplay: function (dirPath, includedRequests, vclText, dockerImageName, hasStartedCallback, hasCompletedCallback) {
 
     if (typeof hasCompletedCallback !== 'function') {
       throw new TypeError('Fifth argument "hasCompletedCallback" must be a function.');
@@ -121,7 +120,7 @@ module.exports = {
 
       if (err) return hasStartedCallback(err);
 
-      runContainer(dirPath, function (err) {
+      runContainer(dirPath, dockerImageName, function (err) {
         sails.log.debug('Run container completed for: ' + dirPath);
         hasCompletedCallback(err, dirPath);
       });
