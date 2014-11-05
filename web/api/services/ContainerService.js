@@ -112,7 +112,7 @@ module.exports = {
   beginReplay: function (dirPath, includedRequests, vclText, hasStartedCallback, hasCompletedCallback) {
 
     if (typeof hasCompletedCallback !== 'function') {
-      hasCompletedCallback = replayCompleted;
+      throw new TypeError('Fifth argument "hasCompletedCallback" must be a function.');
     }
 
     sails.log.debug('Begin replaying requests with vcl in: ' + dirPath);
