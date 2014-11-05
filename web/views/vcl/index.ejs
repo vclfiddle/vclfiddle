@@ -88,12 +88,12 @@
                 <table class="form-control results" id="transactions">
                   <thead>
                     <tr>
-                      <th />
-                      <th>#</th>
+                      <th style="width: 2em;" />
+                      <th style="width: 2em;">#</th>
                       <th>Request</th>
-                      <th>Response</th>
-                      <th>Content-Type</th>
-                      <th>Cache</th>
+                      <th style="width: 7em;">Response</th>
+                      <th style="width: 10em;">Content-Type</th>
+                      <th style="width: 4em;">Cache</th>
                     </tr>
                   </thead>
                   <tbody id="results-tbody-template" style="display: none;">
@@ -105,8 +105,8 @@
                       <td class="result-summary-contentType">content</td>
                       <td class="result-summary-cache">cache</td>
                     </tr>
-                    <tr class="result-details"><td /><td colspan="4">
-                      <table>
+                    <tr class="result-details"><td /><td colspan="5">
+                      <table class="form-control">
                         <thead><tr>
                           <th>Header Name</th><th>Value</th>
                         </tr></thead>
@@ -154,10 +154,10 @@
     results.forEach(function (result) {
       if (!result.ncsa) result.ncsa = { hitmiss: '(unknown)' };
       var reqSumm = result.request.summary;
-      var requestText = [reqSumm.method, reqSumm.url, reqSumm.httpVersion].join(' ');
+      var requestText = [reqSumm.method, reqSumm.url].join(' ');
       var resp = result.response;
       if (!resp) resp = { headers: [] };
-      var responseText = [resp.protocol, resp.code, resp.comment].join(' ');
+      var responseText = [resp.code, resp.comment].join(' ');
       var contentType = resp.headers.filter(function (h) { return h.name.toLowerCase() === 'content-type'; });
       contentType = contentType.length === 0 ? '' : contentType[0].value;
       var contentTypeSemicolonIndex = contentType.indexOf(';');
@@ -295,5 +295,20 @@
     left: 40%;
     top: 25%;
     display: none;
+  }
+  table#transactions {
+    table-layout: fixed;
+  }
+  table#transactions thead {
+    background-color: black;
+  }
+  table#transactions thead th {
+    background-color: 3a3a3a;
+    color: white;
+  }
+  table#transactions td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 </style>
