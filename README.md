@@ -39,21 +39,24 @@ You can find the documentation for VCL for each Varnish version here:
 * [Varnish 3.0](https://www.varnish-cache.org/docs/3.0/reference/vcl.html)
 
 VclFiddle currently pre-fills the VCL editor with the minimum required for
-Varnish 4.0. If you choose another Varnish Version instead you will need to
+Varnish 4.0. If you choose another Varnish version instead you will need to
 replace the default VCL with the appropriate VCL syntax for your chosen version.
 
 Note that Varnish does not support a backend specified by DNS name if that name
 resolves to multiple IP addresses. In this instance, choose one of the possible
 IP addresses to specify directly.
 
-Similarly, the HTTP requests that will be sent to the Varnish instance need to
-be expressed in a direct manner. The first format (of currently two) supported
-is the simulated [cURL](http://curl.haxx.se/docs/manpage.html) command line.
+Similarly to the VCL, the HTTP requests that will be sent to the Varnish
+instance need to be expressed in a direct manner. The first format (of currently
+two) supported is the simulated [cURL](http://curl.haxx.se/docs/manpage.html)
+command line.
 
 You enter a single cURL command per line and the requests will be executed in
 the order specified. There should be enough common cURL arguments recognised
-to produce most HTTP requests. You will find 'Copy as cURL' options in the
-Chrome and Firefox developer tools.
+to produce most HTTP requests. If you there are cURL arguments that you need
+but are not implemented, please submit an issue on GitHub. To quickly create
+cURL commands, you will find 'Copy as cURL' options in the Chrome and Firefox
+developer tools.
 
 The second format supported is HTTP Archive, or
 [HAR](http://www.softwareishard.com/blog/har-12-spec/). This is a JSON-based
@@ -64,6 +67,11 @@ other tools.
 
 VclFiddle will automatically detect whether you have entered requests using
 cURL or HAR format, just don't use a combination of both in one Fiddle.
+
+Some types of requests that are not yet supported will be ignored and this will
+be reported in the results. One example is HTTPS requests - these are not
+supported because Varnish does not support HTTPS directly. If there are any
+request types you need supported (including HTTPS), please raise a GitHub issue.
 
 When using VclFiddle, each Run will use a new instance of Varnish with an empty
 cache therefore it is common to perform the specified set of requests twice -
