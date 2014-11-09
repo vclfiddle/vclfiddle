@@ -31,6 +31,7 @@ pushd /var/web && sudo npm install && popd
 
 # build the Varnish docker image
 $SCRIPTROOT/varnish4/build.sh
+$SCRIPTROOT/varnish3/build.sh
 
 # install the setuid run-varnish-container script
 sudo apt-get install --assume-yes gcc
