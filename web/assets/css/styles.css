@@ -1,0 +1,37 @@
+/* Social */
+.social-holder{
+  text-align:center;
+  max-width:200px;
+  padding-top:10px;
+  padding-bottom:67px;
+  /*margin-bottom:67px;*/
+  /*border-bottom:1px solid #60708b;*/
+  border-radius: 10px;
+}
+.social{
+  margin:0;
+  padding:0;
+  list-style:none;
+  overflow:hidden;
+  display:inline-block;
+  vertical-align:top;
+}
+.social li{
+  float:left;
+  padding-left:10px;
+}
+.social li:first-child{padding:0;}
+.social a{
+  text-indent:-9999px;
+  background:url(/images/ico-social.png) no-repeat;
+  width:51px;
+  height:51px;
+  display:block;
+}
+.social .facebook{background-position: -17px -18px;}
+.social .twitter{background-position: -72px -18px;}
+.social .google-plus{background-position: -183px -185px;}
+
+/*.social .twitter:hover{background-position:0 -55px;}
+.social .facebook:hover{background-position:-89px -55px;}
+.social .google-plus:hover{background-position:-179px -55px;}*/
