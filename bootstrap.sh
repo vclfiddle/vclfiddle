@@ -1,8 +1,6 @@
 #!/bin/bash
 
-pushd $(dirname $0) >/dev/null || exit $?
-SCRIPTROOT=$(pwd)
-popd >/dev/null
+SCRIPTROOT=/vagrant
 
 # install docker
 if ! command -v docker >/dev/null; then
