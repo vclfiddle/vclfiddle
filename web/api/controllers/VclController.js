@@ -134,7 +134,7 @@ module.exports = {
     var rawRequests = req.body.har;
     var dockerImage = req.body.image || 'varnish4';
 
-    const supportedImages = ['varnish4', 'varnish3'];
+    const supportedImages = ['varnish4', 'varnish3', 'varnish2'];
     if (supportedImages.indexOf(dockerImage) < 0) {
       sails.log.warn('Invalid image parameter:' + dockerImage);
       return res.badRequest();
