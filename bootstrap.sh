@@ -40,10 +40,6 @@ sudo chown root:root /opt/vclfiddle/run-varnish-container*
 sudo chmod 04755 /opt/vclfiddle/run-varnish-container
 sudo chmod 755 /opt/vclfiddle/run-varnish-container.pl
 
-# launch the sails app
-sudo npm install --global forever
-cd /var/www && forever start app.js
-
 # TODO install nginx on port 80 to proxy to sails 1337
 
 # test the app
