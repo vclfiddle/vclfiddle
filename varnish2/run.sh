@@ -21,10 +21,6 @@ function executerequest {
 
 debuglog "Starting varnishd"
 /usr/sbin/varnishd -a 127.0.0.1:80 -b 127.0.0.1:8080 -T 127.0.0.1:6082 -S /etc/varnish/secret -P /run/varnishd.pid -p vcl_trace=on 2>&1 >>/fiddle/run.log || exit $?
-#If the 1st line started with "storage_file"  it's just the normal start of the varnishd process, remove that line
-if [[ $(head -n 1 /fiddle/run.log) == storage_file* ]]; then
-   tail -n +2 /fiddle/run.log > /fiddle/run.log
-fi
 debuglog "Started varnishd"
 
 varnishcommand vcl.load fiddle /fiddle/default.vcl
@@ -43,5 +39,10 @@ debuglog "Executed requests"
 debuglog "Flushing varnishlog"
 kill -s SIGHUP $(cat /run/varnishlog.pid)
 varnishlog -r /tmp/rawvarnishlog >/fiddle/varnishlog
+
+#If the 1st line started with "storage_file"  it's just the normal start of the varnishd process, remove that line
+if [[ $(head -n 1 /fiddle/run.log) == storage_file* ]]; then
+   tail -n +2 /fiddle/run.log > /fiddle/run.log
+fi
 
 debuglog "Done"
