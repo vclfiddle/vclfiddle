@@ -31,7 +31,7 @@
         <li><a href="https://github.com/vclfiddle/vclfiddle/blob/master/examples/02%20Remove%20excess%20response%20headers.md" target="_blank">Hide headers</a></li>
       </ol>
       <h3>Legals, Credits and Links</h3>
-      Created and maintained by <a href="https://twitter.com/jstangroome" target="_blank">@jstangroome</a> and <a href="https://twitter.com/dbartholomew" target="_blank">@dbartholomew</a>.
+      Created and maintained by <a href="https://twitter.com/jstangroome" target="_blank">@jstangroome</a>, <a href="https://twitter.com/dbartholomew" target="_blank">@dbartholomew</a> and <a href="https://twitter.com/dalziel" target="_blank">@dalziel</a>.
 
       <div class="social-holder">
         <ul class="social">
@@ -96,6 +96,7 @@
                       <td class="result-summary-cache">cache</td>
                     </tr>
                     <tr class="result-details"><td /><td colspan="5">
+                      <div class="results-container">
                       <table class="form-control">
                         <thead><tr>
                           <th>Header Name</th><th>Value</th>
@@ -107,6 +108,7 @@
                           </tr>
                         </tbody>
                       </table>
+                      </div>
                     </td></tr>
                   <tbody>
                 </table>
@@ -177,7 +179,7 @@
       }
       responseCell.text(responseText);
 
-      var detailsRow = resulttbody.find('tr.result-details');
+      var detailsRow = resulttbody.find('tr.result-details .results-container');
       detailsRow.hide();
       resulttbody.find('td.result-details-toggle').click(function (ev) {
         detailsRow.slideToggle();
@@ -302,6 +304,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  table#transactions td.result-details-toggle { cursor: pointer;}
   table#transactions td.result-summary-cache {
     text-align: center;
   }
