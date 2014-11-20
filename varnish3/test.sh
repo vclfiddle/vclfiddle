@@ -20,6 +20,7 @@ test -s $TEST_DIR/run.log && echo 'FAILURE: run.log is not empty'
 grep -Fq Done $TEST_DIR/debug.log || echo 'FAILURE: debug.log missing Done line'
 test -f $TEST_DIR/response_0 || echo 'FAILURE: response_0 missing'
 grep -Fq TxStatus $TEST_DIR/varnishlog || echo 'FAILURE: varnishlog missing RespStatus line'
+grep -Fq VCL_trace $TEST_DIR/varnishlog || echo 'FAILURE: varnishlog missing VCL_trace line'
 test -s $TEST_DIR/varnishncsa || echo 'FAILURE: varnishncsa is missing or empty'
 
 # bad VCL test

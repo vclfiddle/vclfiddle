@@ -20,7 +20,7 @@ function executerequest {
 }
 
 debuglog "Starting varnishd"
-/usr/sbin/varnishd -a 127.0.0.1:80 -b 127.0.0.1:8080 -T 127.0.0.1:6082 -S /etc/varnish/secret -P /run/varnishd.pid 2>&1 >>/fiddle/run.log || exit $?
+/usr/sbin/varnishd -a 127.0.0.1:80 -b 127.0.0.1:8080 -T 127.0.0.1:6082 -S /etc/varnish/secret -P /run/varnishd.pid -p vcl_trace=on 2>&1 >>/fiddle/run.log || exit $?
 debuglog "Started varnishd"
 
 varnishcommand vcl.load fiddle /fiddle/default.vcl
