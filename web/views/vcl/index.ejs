@@ -16,47 +16,24 @@
   <form id="input">
   <div class="row">
     <div class="col-md-2">
-      <div class="accordion" id="accordion2">
-        <div class="accordion-group">
-          <div class="accordion-heading">
-            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
-              <h3>Varnish Version</h3>
-            </a>
-          </div>
-          <div id="collapseOne" class="accordion-body collapse in">
-            <div class="accordion-inner">
-              <div class="dropdown">
-                <select name="image" id="docker-image">
-                  <option value="varnish4" selected="selected">Varnish 4.0.2</option>
-                  <option value="varnish3">Varnish 3.0.6</option>
-                </select>
-                <!-- TODO ensure this dropdown is set to the correct Varnish version for existing fiddles -->
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="accordion-group">
-          <div class="accordion-heading">
-            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
-              <h3>Legals, Credits and Links</h3>
-            </a>
-          </div>
-          <div id="collapseTwo" class="accordion-body collapse in">
-            <div class="accordion-inner">
-              Created and maintained by <a href="https://twitter.com/jstangroome" target="_blank">@jstangroome</a> and <a href="https://twitter.com/dbartholomew" target="_blank">@dbartholomew</a>.
-
-              <div class="social-holder">
-                <ul class="social">
-                  <li><a href="https://www.facebook.com/vclFiddle" target="_blank" class="facebook">Facebook</a></li>
-                  <li><a href="https://www.twitter.com/vclfiddle" target="_blank" class="twitter">Twitter</a></li>
-                  <li><a href="https://plus.google.com/104295858219882072889/about" target="_blank" class="google-plus">GooglePlus</a></li>
-                </ul>
-              </div><!-- social -->
-
-            </div>
-          </div>
-        </div>
+      <h3>Varnish Version</h3>
+      <div class="dropdown">
+        <select name="image" id="docker-image">
+          <option value="varnish4" selected="selected">Varnish 4.0.2</option>
+          <option value="varnish3">Varnish 3.0.6</option>
+        </select>
+        <!-- TODO ensure this dropdown is set to the correct Varnish version for existing fiddles -->
       </div>
+      <h3>Legals, Credits and Links</h3>
+      Created and maintained by <a href="https://twitter.com/jstangroome" target="_blank">@jstangroome</a> and <a href="https://twitter.com/dbartholomew" target="_blank">@dbartholomew</a>.
+
+      <div class="social-holder">
+        <ul class="social">
+          <li><a href="https://www.facebook.com/vclFiddle" target="_blank" class="facebook">Facebook</a></li>
+          <li><a href="https://www.twitter.com/vclfiddle" target="_blank" class="twitter">Twitter</a></li>
+          <li><a href="https://plus.google.com/104295858219882072889/about" target="_blank" class="google-plus">GooglePlus</a></li>
+        </ul>
+      </div><!-- social -->
     </div>
     <div class="col-md-10">
       <input id="fiddleid" type="hidden" name="fiddleid" value="<%= fiddleid || '' %>" />
