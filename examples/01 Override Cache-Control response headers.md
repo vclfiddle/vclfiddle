@@ -12,9 +12,9 @@ http://www.vclfiddle.net/example/one
 
 The image served by this URL is accompanied by the following response header:
 
-`Cache-Control: public, max-age=0`
+`Cache-Control: no-store`
 
-The `max-age=0` component prevents the image, which is expected to change
+The `no-store` value prevents this image, which is expected to change
 infrequently, from being cached by Varnish or by browsers.
 
 You can see this problem demonstrated as cache misses by this Fiddle:

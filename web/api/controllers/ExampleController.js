@@ -19,7 +19,7 @@ curl "http://www.vclfiddle.net/example/one"
     req.session = null; // don't send Set-Cookie: sails.sid=
     return res
       .header('Link', '<https://www.flickr.com/photos/crazymandi/8165527856/>; rel=alternate')
-      .header('Cache-Control', 'public, max-age=0')
+      .header('Cache-Control', 'no-store')
       .sendfile(path.join(__dirname, 'flickr-crazymandi-puppy.jpg'));
   },
 
