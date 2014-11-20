@@ -96,6 +96,7 @@
                       <td class="result-summary-cache">cache</td>
                     </tr>
                     <tr class="result-details"><td /><td colspan="5">
+                      <div class="results-container">
                       <table class="form-control">
                         <thead><tr>
                           <th>Header Name</th><th>Value</th>
@@ -107,6 +108,7 @@
                           </tr>
                         </tbody>
                       </table>
+                      </div>
                     </td></tr>
                   <tbody>
                 </table>
@@ -177,7 +179,7 @@
       }
       responseCell.text(responseText);
 
-      var detailsRow = resulttbody.find('tr.result-details');
+      var detailsRow = resulttbody.find('tr.result-details .results-container');
       detailsRow.hide();
       resulttbody.find('td.result-details-toggle').click(function (ev) {
         detailsRow.slideToggle();
