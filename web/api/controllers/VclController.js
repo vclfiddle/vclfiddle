@@ -60,7 +60,8 @@ module.exports = {
         fiddleid: '',
         vcl: defaultVcl,
         har: defaultHar,
-        log: ''
+        log: '',
+        image: defaultImage
       });
     }
 
@@ -78,7 +79,8 @@ module.exports = {
           vcl: viewState.vcl,
           har: viewState.har,
           log: viewState.log,
-          results: viewState.results
+          results: viewState.results,
+          image: viewState.image
         })
 
       });
