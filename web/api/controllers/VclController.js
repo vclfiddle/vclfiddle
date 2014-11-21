@@ -50,6 +50,7 @@ module.exports = {
 	index: function (req, res) {
     const defaultVcl = 'vcl 4.0; backend default { .host = "www.vclfiddle.net"; .port = "80"; }';
     const defaultHar = "curl http://www.vclfiddle.net --header 'User-Agent: vclFiddle'";
+    const defaultImage = 'varnish4';
 
     var fiddleid = req.params.fiddleid || '';
     var runindex = req.params.runindex || '0';
