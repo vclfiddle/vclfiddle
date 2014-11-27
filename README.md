@@ -33,6 +33,8 @@ VclFiddle is hosted at http://www.vclfiddle.net/.
 
 http://youtu.be/lJ-Rf1L94Sc
 
+<iframe width="560" height="315" src="//www.youtube.com/embed/lJ-Rf1L94Sc" frameborder="0" allowfullscreen></iframe>
+
 VclFiddle exposes a very direct interface to the Varnish instance used
 internally. You provide the VCL exactly as you would for a self-managed Varnish
 instance and in return you get an unprocessed Varnishlog output.
