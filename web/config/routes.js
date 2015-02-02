@@ -24,6 +24,7 @@ module.exports.routes = {
 
   'r|^/(\\d{6}-[a-z0-9]{7})/(\\d+)$|fiddleid,runindex': 'VclController.index', // ie /fiddleid/runindex
   'r|^/(\\d{6}-[a-z0-9]{7})/?$|fiddleid': 'VclController.index', // ie //fiddleid/
-  '/': 'VclController.index'
+  '/': 'VclController.index',
+  'post /send': 'VclController.send'
 
 };

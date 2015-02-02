@@ -46,6 +46,8 @@ function completeRun(err, fiddle, allRequests) {
 
 }
 
+var mandrill = require('mandrill-api/mandrill');
+
 module.exports = {
 	index: function (req, res) {
     const defaultVcl = 'vcl 4.0; backend default { .host = "www.vclfiddle.net"; .port = "80"; }';
@@ -203,6 +205,77 @@ module.exports = {
       });
 
     });
+
+  },
+
+  'send': function (req, res) {
+
+    var params = req.params.all();
+    var err = [];
+    if(!params.your_name || params.your_name == ''){
+      err.push({'your_name':'Your Name is required'});
+    }
+    if(!params.friend_name || params.friend_name == ''){
+      err.push({'friend_name': "Friend's Name is required"});
+    }
+    if(!params.email || params.email == ''){
+      err.push({'email': "Friend's Email is required"});
+    }
+    if(!params.current_fiddle || params.current_fiddle == ''){
+      err.push({'current_fiddle': 'Current Fiddle is required'});
+    }
+    if (err.length > 0) {
+      return res.json( {
+          status: 'error',
+          message: err
+        }
+      );
+    }
+
+    var msg_text = 'Dear: ' + params.friend_name + ',\n';
+    msg_text += params.your_name + ' recommends you to visit the fiddle below: ,\n';
+    msg_text += 'Url: ' + params.current_fiddle + '\n';
+
+    var message = {
+      to: [{
+        email: params.email,
+        name: params.friend_name,
+        type: 'to'
+      }],
+      from_email: sails.config.mandrill.from_email,
+      from_name: sails.config.mandrill.from_name,
+      subject: 'Please visit this fiddle',
+      text: msg_text
+    };
+
+    var client = new mandrill.Mandrill(sails.config.mandrill.api_key);
+    client.messages.send(
+      {"message": message, "async": false},
+      function(response) {
+
+        if (response.status == 'rejected') { //rejected
+          //console.log( JSON.stringify(response) );
+          return req.json({
+            status: 'error',
+            message: response
+          });
+        }
+        else { //success
+          return res.json( {
+              status: 'success',
+              message: 'Email successfully sent'
+            }
+          );
+        }
+      },
+      function(err) { //error
+        return res.json( {
+            status: 'error',
+            message: err
+          }
+        );
+      }
+    );
 
   }
 

@@ -1,3 +1,62 @@
+h3 {
+  color: #353535;
+  font-size:15px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.editor {
+  border: 1px solid #C0C0C0;
+}
+.navbar-nav>li>a {
+  background: #3a3a3a;
+  color: white;
+}
+.nav-pills>li>a {
+  border-radius: 0;
+}
+.nav>li>a:hover {
+  color: #3a3a3a
+}
+.window-label {
+  position: absolute;
+  top: 10px;
+  right: 30px;
+}
+.spinner img {
+  position: absolute;
+  z-index: 10;
+  left: 40%;
+  top: 25%;
+  display: none;
+}
+table#transactions {
+  table-layout: fixed;
+}
+table#transactions thead {
+  background-color: black;
+}
+table#transactions thead th {
+  background-color: 3a3a3a;
+  color: white;
+}
+table#transactions td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+table#transactions td.result-summary-cache {
+  text-align: center;
+}
+table#transactions td.cache-miss {
+  background-color: #de1d1d;
+  color: white;
+}
+table#transactions td.cache-hit {
+  background-color: #1e9753;
+  color: white;
+}
+
+
 /* Social */
 .social-holder{
   text-align:center;

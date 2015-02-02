@@ -6,7 +6,13 @@
     <nav class="collapse navbar-collapse" role="navigation" style="background-color:black">
       <ul class="nav navbar-nav nav-pills">
         <li><a href="#run" id="run">Run <span class="glyphicon glyphicon-play"></span></a></li>
-        <li><a href="#share" id="share">Share <span class="glyphicon glyphicon-share"></span></a></li>
+        <li class="dropdown">
+          <a href="#" id="share" class="dropdown-toggle" data-toggle="dropdown">Share <span class="glyphicon glyphicon-share"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="https://twitter.com/share" class="twitter-popup">Tweet</a></li>
+            <li><a id="email_link" data-toggle="modal" data-target="#send-email-form" href="#">Email</a></li>
+          </ul>
+        </li>
         <li><a href="https://github.com/vclfiddle/vclfiddle/blob/master/README.md" target="_blank">Docs <span class="glyphicon glyphicon-question-sign"></span></a></li>
       </ul>
     </nav>
@@ -136,198 +142,51 @@
   </div>
   </form>
 </div>
+
+<div class="modal fade" id="send-email-form" tabindex="-1" role="dialog" aria-labelledby="basicModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="/send" method="post" class="form-horizontal" role="form" id="sendFiddleForm">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"> x</button>
+        <h4 class="modal-title" id="myModalLabel">Email this fiddle url</h4>
+      </div>
+      <div class="modal-body">
+          <input type="hidden" id="current_fiddle" name="current_fiddle">
+        <div class="form-group">
+          <label class="control-label col-sm-3" for="your_name">Your Name:</label>
+          <div class="col-sm-9">
+            <input type="your_name" class="form-control" id="your_name" name="your_name" placeholder="Enter Your Name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="control-label col-sm-3" for="friend_name">Friend's Name:</label>
+          <div class="col-sm-9">
+            <input type="friend_name" class="form-control" id="friend_name" name="friend_name" placeholder="Enter Friend's Name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="control-label col-sm-3" for="email">Friend's Email:</label>
+          <div class="col-sm-9">
+            <input type="email" class="form-control" id="email" name="email" placeholder="Enter Friend's email">
+          </div>
+        </div>
+        <!-- the result of the search will be rendered inside this div -->
+        <div id="result"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button id="send_email" type="submit" class="btn btn-primary">Send</button>
+      </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 <script src="/js/bootstrap.min.js" rel="stylesheet"></script>
 <script src="/CodeMirror/codemirror.js"></script>
 <script src="/CodeMirror/mode/javascript/javascript.js"></script>
 <% if (typeof results === 'object') { %><script>var vclfiddle_results=<%- JSON.stringify(results) %>;</script><% } %>
-<script>
-  var vcl = CodeMirror.fromTextArea(document.getElementById("vcl"), { lineNumbers: true, mode: {name: "javascript", json: true} });
-  var har = CodeMirror.fromTextArea(document.getElementById("har"), { lineNumbers: true, mode: {name: "javascript", json: true} });
-  var varnishlog = CodeMirror.fromTextArea(document.getElementById("varnishlog"), { lineNumbers: true, mode: {name: "javascript", json: true}, readOnly: true });
-  var hiddenFiddleIdInput = document.getElementById('fiddleid');
+<script src="/js/scripts.js"></script>
 
-  function clearTransactions() {
-    var table = $('table#transactions');
-    var tbodyTemplate = table.find('tbody#results-tbody-template');
-    var otherTbodies = table.find('>tbody:not(#results-tbody-template)');
-    otherTbodies.remove();
-  }
-
-  function displayTransactions(results) {
-    var table = $('table#transactions');
-    var tbodyTemplate = table.find('tbody#results-tbody-template');
-    var toInsertAfter = tbodyTemplate;
-    results.forEach(function (result) {
-      if (!result.ncsa) result.ncsa = { hitmiss: '(unknown)' };
-      var reqSumm = result.request.summary;
-      var requestText = [reqSumm.method, reqSumm.url].join(' ');
-      var resp = result.response;
-      if (!resp) resp = { headers: [] };
-      var responseText = [resp.code, resp.comment].join(' ');
-      var contentType = resp.headers.filter(function (h) { return h.name.toLowerCase() === 'content-type'; });
-      contentType = contentType.length === 0 ? '' : contentType[0].value;
-      var contentTypeSemicolonIndex = contentType.indexOf(';');
-      if (contentTypeSemicolonIndex >= 0) contentType = contentType.substring(0, contentTypeSemicolonIndex);
-
-      if (result.request.excludeReason) {
-        responseText = ['(', result.request.excludeReason, ': ', result.request.message, ')'].join(' ');
-      }
-
-      var resulttbody = tbodyTemplate.clone();
-      resulttbody.attr('id', '');
-      resulttbody.attr('style', '');
-      resulttbody.find('td.result-summary-entryIndex').text(result.request.entryIndex);
-      resulttbody.find('td.result-summary-request').text(requestText);
-      var responseCell = resulttbody.find('td.result-summary-response');
-      var contentTypeCell = resulttbody.find('td.result-summary-contentType');
-      var cacheCell = resulttbody.find('td.result-summary-cache');
-      if (result.request.excludeReason) {
-        responseText = ['(', result.request.excludeReason, ': ', result.request.message, ')'].join(' ');
-        responseCell.attr('colspan', 3);
-        contentTypeCell.hide();
-        cacheCell.hide();
-      } else {
-        contentTypeCell.text(contentType);
-        cacheCell.text(result.ncsa.hitmiss);
-        cacheCell.addClass('cache-' + result.ncsa.hitmiss);
-      }
-      responseCell.text(responseText);
-
-      var detailsRow = resulttbody.find('tr.result-details');
-      detailsRow.hide();
-      resulttbody.find('td.result-details-toggle').click(function (ev) {
-        detailsRow.slideToggle();
-      });
-      // TODO handle keyboard expansion too
-      // TODO handle click event on a parent to reduce event handlers
-
-      var detailRowTemplate = resulttbody.find('tr#result-details-row-template');
-      var detailToInsertAfter = detailRowTemplate;
-      var detailRows = resp.headers.forEach(function (header) {
-        var row = detailRowTemplate.clone();
-        row.attr('id', '');
-        row.attr('style', '');
-        row.find('td.result-details-headerName').text(header.name);
-        row.find('td.result-details-headerValue').text(header.value);
-        row.insertAfter(detailToInsertAfter);
-        detailToInsertAfter = row;
-      });
-
-      // TODO show ncsa.handling in details
-      // TODO show vxid for correlation with varnishlog
-
-      detailRowTemplate.remove();
-
-      resulttbody.insertAfter(toInsertAfter);
-      toInsertAfter = resulttbody;
-    });
-  };
-
-  $("#run").click(function (e) {
-    e.preventDefault();
-    vcl.save();
-    har.save();
-    $('.spinner img').fadeIn();
-    $.ajax({
-      type: "POST",
-      url: "/vcl/run",
-      data: $( "#input" ).serialize(),
-      headers: { Accept: "application/json; charset=utf-8"}
-    }).done(function( data ) {
-      hiddenFiddleIdInput.value = data.fiddleid;
-      var newFiddleUrl = ['/', data.fiddleid, '/', data.runindex].join('');
-      window.history.pushState({fiddleid: data.fiddleid, runindex: data.runindex}, '', newFiddleUrl);
-      // TODO handle popState for history navigation
-      varnishlog.setValue(data.log || '');
-      clearTransactions();
-      var poll = function () {
-        var resultUrl = ['/vcl/result?fiddleid=', data.fiddleid, '&runindex=', data.runindex].join('');
-        $.getJSON(resultUrl, function (data) {
-          if (data.log) {
-            $('.spinner img').fadeOut();
-            varnishlog.setValue(data.log);
-            if (data.results) {
-              displayTransactions(data.results);
-            }
-          } else {
-            window.setTimeout(poll, 1000);
-          }
-        });
-      };
-      window.setTimeout(poll, 1000);
-    });
-  });
-  $("#save").click(function (e) {e.preventDefault();});
-  $("#share").click(function (e) {e.preventDefault();});
-
-  $( ".editor" )
-  .mouseenter(function() {
-    $( this ).find( ".window-label" ).fadeOut();
-  })
-  .mouseleave(function() {
-    $( this ).find( ".window-label" ).fadeIn();
-  });
-
-  if (typeof vclfiddle_results === 'object') displayTransactions(vclfiddle_results);
-
-</script>
-<style>
-  h3 {
-    color: #353535;
-    font-size:15px;
-    font-weight: bold;
-    text-transform: uppercase;
-  }
-  .editor {
-    border: 1px solid #C0C0C0;
-  }
-  .navbar-nav>li>a {
-    background: #3a3a3a;
-    color: white;
-  }
-  .nav-pills>li>a {
-    border-radius: 0;
-  }
-  .nav>li>a:hover {
-    color: #3a3a3a
-  }
-  .window-label {
-    position: absolute;
-    top: 10px;
-    right: 30px;
-  }
-  .spinner img {
-    position: absolute;
-    z-index: 10;
-    left: 40%;
-    top: 25%;
-    display: none;
-  }
-  table#transactions {
-    table-layout: fixed;
-  }
-  table#transactions thead {
-    background-color: black;
-  }
-  table#transactions thead th {
-    background-color: 3a3a3a;
-    color: white;
-  }
-  table#transactions td {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  table#transactions td.result-summary-cache {
-    text-align: center;
-  }
-  table#transactions td.cache-miss {
-    background-color: #de1d1d;
-    color: white;
-  }
-  table#transactions td.cache-hit {
-    background-color: #1e9753;
-    color: white;
-  }
-</style>
