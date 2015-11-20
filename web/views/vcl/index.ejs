@@ -20,9 +20,9 @@
       <h3>Varnish Version</h3>
       <div class="dropdown">
         <select name="image" id="docker-image">
-          <option value="varnish4_0_2"<%=(image == 'varnish4_0_2' ? 'selected="selected"' : '')%>>Varnish 4.0.2</option>
-          <option value="varnish3"<%=(image == 'varnish3' ? 'selected="selected"' : '')%>>Varnish 3.0.6</option>
-          <option value="varnish2"<%=(image == 'varnish2' ? 'selected="selected"' : '')%>>Varnish 2.1.5</option>
+        <% Object.keys(supportedImages).forEach(function(k) { %>
+          <option value="<%=k%>"<%=(image == k ? 'selected="selected"' : '')%>><%= supportedImages[k] %></option>
+        <% }) %>
         </select>
         <!-- TODO ensure this dropdown is set to the correct Varnish version for existing fiddles -->
       </div>

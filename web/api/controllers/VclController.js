@@ -13,6 +13,7 @@ var url = require('url');
 const defaultVcl = 'vcl 4.0; backend default { .host = "www.vclfiddle.net"; .port = "80"; }';
 const defaultHar = "curl http://www.vclfiddle.net --header 'User-Agent: vclFiddle'";
 const defaultImage = 'varnish4_0_2';
+const supportedImages = {'varnish4_0_2' : 'Varnish 4.0.2', 'varnish3' : 'Varnish 3.0.6', 'varnish2': 'Varnish 2.1.5'};
 
 function completeRun(err, fiddle, allRequests) {
 
@@ -62,7 +63,8 @@ module.exports = {
         vcl: defaultVcl,
         har: defaultHar,
         log: '',
-        image: defaultImage
+        image: defaultImage,
+        supportedImages: supportedImages
       });
     }
 
@@ -81,7 +83,8 @@ module.exports = {
           har: viewState.har,
           log: viewState.log,
           results: viewState.results,
-          image: viewState.image
+          image: viewState.image,
+          supportedImages: supportedImages
         })
 
       });
@@ -138,8 +141,8 @@ module.exports = {
     var rawRequests = req.body.har;
     var dockerImage = req.body.image || defaultImage;
 
-    const supportedImages = ['varnish4_0_2', 'varnish3', 'varnish2'];
-    if (supportedImages.indexOf(dockerImage) < 0) {
+
+    if (Object.keys(supportedImages).indexOf(dockerImage) < 0) {
       sails.log.warn('Invalid image parameter:' + dockerImage);
       return res.badRequest();
     }
