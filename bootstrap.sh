@@ -4,7 +4,7 @@ SCRIPTROOT=/vagrant
 
 # install docker
 if ! command -v docker >/dev/null; then
-  curl -sSL https://get.docker.io/ubuntu/ | sudo sh
+  curl -sSL https://get.docker.com/ | sudo sh
 fi
 
 # install g++ via build-essential
