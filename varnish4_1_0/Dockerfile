@@ -4,9 +4,9 @@ MAINTAINER vclfiddle.net <support@vclfiddle.net>
 RUN apt-get update
 RUN apt-get install --assume-yes apt-transport-https curl
 RUN curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
-RUN echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.0" >> /etc/apt/sources.list.d/varnish-cache.list
+RUN echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-4.1" >> /etc/apt/sources.list.d/varnish-cache.list
 RUN apt-get update
-RUN apt-get install --assume-yes varnish=4.0.2-1~trusty
+RUN apt-get install --assume-yes libvarnishapi1=4.1.0-1~trusty varnish=4.1.0-1~trusty
 
 VOLUME ["/fiddle"]
 CMD ["/run.sh"]

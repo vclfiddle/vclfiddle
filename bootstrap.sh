@@ -4,7 +4,7 @@ SCRIPTROOT=/vagrant
 
 # install docker
 if ! command -v docker >/dev/null; then
-  curl -sSL https://get.docker.io/ubuntu/ | sudo sh
+  curl -sSL https://get.docker.com/ | sudo sh
 fi
 
 # install g++ via build-essential
@@ -28,7 +28,7 @@ sudo rsync -av $SCRIPTROOT/web/ /var/web/
 pushd /var/web && sudo npm install && popd
 
 # build the Varnish docker image
-$SCRIPTROOT/varnish4/build.sh
+$SCRIPTROOT/varnish4_0_2/build.sh
 $SCRIPTROOT/varnish3/build.sh
 $SCRIPTROOT/varnish2/build.sh
 
