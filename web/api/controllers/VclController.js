@@ -10,6 +10,10 @@ var path = require('path');
 var temp = require('temp');
 var url = require('url');
 
+const defaultVcl = 'vcl 4.0; backend default { .host = "www.vclfiddle.net"; .port = "80"; }';
+const defaultHar = "curl http://www.vclfiddle.net --header 'User-Agent: vclFiddle'";
+const defaultImage = 'varnish4_0_2';
+
 function completeRun(err, fiddle, allRequests) {
 
   var completedData = { completedAt: new Date() };
@@ -48,9 +52,6 @@ function completeRun(err, fiddle, allRequests) {
 
 module.exports = {
 	index: function (req, res) {
-    const defaultVcl = 'vcl 4.0; backend default { .host = "www.vclfiddle.net"; .port = "80"; }';
-    const defaultHar = "curl http://www.vclfiddle.net --header 'User-Agent: vclFiddle'";
-    const defaultImage = 'varnish4';
 
     var fiddleid = req.params.fiddleid || '';
     var runindex = req.params.runindex || '0';
@@ -135,9 +136,9 @@ module.exports = {
     var fiddleid = req.body.fiddleid || '';
     var vcl = req.body.vcl;
     var rawRequests = req.body.har;
-    var dockerImage = req.body.image || 'varnish4';
+    var dockerImage = req.body.image || defaultImage;
 
-    const supportedImages = ['varnish4', 'varnish3', 'varnish2'];
+    const supportedImages = ['varnish4_0_2', 'varnish3', 'varnish2'];
     if (supportedImages.indexOf(dockerImage) < 0) {
       sails.log.warn('Invalid image parameter:' + dockerImage);
       return res.badRequest();
