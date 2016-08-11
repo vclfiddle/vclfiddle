@@ -14,7 +14,7 @@ if ($imageName =~ /^(\w+)$/) {
   die "Invalid characters in '$imageName'";
 }
 
-if ($dirPath =~ /^(\/tmp\/vclfiddle\-[\w\/\-]+)$/) {
+if ($dirPath =~ /^(\/var\/lib\/vclfiddle\/vclfiddle\-[\w\/\-]+)$/) {
   $dirPath = $1; #untaint
 } else {
   die "Invalid characters in '$dirPath'";

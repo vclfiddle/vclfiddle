@@ -2,7 +2,7 @@ var fs = require('fs-ext');
 var mkdirp = require('mkdirp');
 var path = require('path');
 
-const fiddleDirPrefix = '/tmp/vclfiddle-';
+const fiddleDirPrefix = '/var/lib/vclfiddle/vclfiddle-';
 
 function newFiddle(callback) {
   var now = new Date();

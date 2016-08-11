@@ -49,5 +49,9 @@ sudo chmod 755 /opt/vclfiddle/run-varnish-container.pl
 # test the app
 sudo npm install --global mocha
 
+sudo mkdir --parents /var/lib/vclfiddle/
+sudo chown vagrant:adm /var/lib/vclfiddle/
+sudo chmod 0775 /var/lib/vclfiddle/
+
 #sudo rsync -av /vagrant/web/ /var/web/ && cd /var/web && sudo npm install && npm test
 #sudo rsync -av /vagrant/web/ /var/web/ && cd /var/web && node app.js
