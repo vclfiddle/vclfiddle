@@ -295,7 +295,7 @@ module.exports = {
     var results = includedRequests.map(function (req, index) {
       var response = parseResponse(responses[index]);
       var vxidHeaders = response.headers.filter(function (e) { return e.name.toLowerCase() === 'x-varnish'; });
-      var vxid = vxidHeaders.length === 0 ? null : vxidHeaders[0].value;
+      var vxid = vxidHeaders.length === 0 ? null : vxidHeaders[vxidHeaders.length - 1].value;
       var ncsaRecords = parsedNcsa.filter(function (r) { return r.vxid === vxid });
       var ncsa = ncsaRecords.length === 0 ? null : ncsaRecords[0];
       return {
