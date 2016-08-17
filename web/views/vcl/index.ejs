@@ -184,7 +184,9 @@
       var detailsRow = resulttbody.find('tr.result-details .results-container');
       detailsRow.hide();
       resulttbody.find('td.result-details-toggle').click(function (ev) {
-        detailsRow.slideToggle();
+        var togglebutton = $(this);
+        detailsRow.slideToggle(400, function () { togglebutton.text() == '[+]' ? togglebutton.text('[-]') : togglebutton.text('[+]'); });
+
       });
       // TODO handle keyboard expansion too
       // TODO handle click event on a parent to reduce event handlers
