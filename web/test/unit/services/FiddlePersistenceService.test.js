@@ -12,7 +12,7 @@ describe('FiddlePersistenceService', function () {
       FiddlePersistenceService.prepareFiddle(req_body.id, function (err, fiddle) {
         if (err) return done(err);
         expect(fiddle.id).to.match(/^\d{6}-[a-z\d]{7}$/);
-        expect(fiddle.path).to.match(/^\/tmp\/vclfiddle-/);
+        expect(fiddle.path).to.match(/^\/var\/lib\/vclfiddle\/vclfiddle-/);
         expect(fiddle.path).to.match(/\/\d+\/?$/);
         fs.stat(fiddle.path, function (err, stats) {
           if (err) return done(err);
