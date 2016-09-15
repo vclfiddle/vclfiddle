@@ -36,7 +36,7 @@ describe('ContainerService', function () {
 
     it('should call started callback then completed callback', function (done) {
       this.timeout(5e3);
-      var testDir = '/tmp/vclfiddle-testing-' + Math.floor(Math.random() * 0x10000).toString(16);
+      var testDir = '/var/lib/vclfiddle/vclfiddle-testing-' + Math.floor(Math.random() * 0x10000).toString(16);
       fs.mkdirSync(testDir);
       const includedRequests = [{payload: ''}];
       const vclText = '';
