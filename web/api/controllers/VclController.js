@@ -14,6 +14,7 @@ const defaultVcl = 'vcl 4.0; backend default { .host = "www.vclfiddle.net"; .por
 const defaultHar = "curl http://www.vclfiddle.net --header 'User-Agent: vclFiddle'";
 const defaultImage = 'varnish4_1_3';
 const supportedImages = {
+  'varnish5_1_2': 'Varnish 5.1.2',
   'varnish5_0_0': 'Varnish 5.0.0',
   'varnish5_0_0beta': 'Varnish 5.0.0 Beta',
   'varnish4_1_3': 'Varnish 4.1.3',
