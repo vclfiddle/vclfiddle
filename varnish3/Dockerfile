@@ -6,7 +6,7 @@ RUN apt-get install --assume-yes apt-transport-https curl
 RUN curl https://repo.varnish-cache.org/ubuntu/GPG-key.txt | apt-key add -
 RUN echo "deb https://repo.varnish-cache.org/ubuntu/ trusty varnish-3.0" >> /etc/apt/sources.list.d/varnish-cache.list
 RUN apt-get update
-RUN apt-get install --assume-yes varnish=3.0.6-1~trusty
+RUN apt-get install --assume-yes varnish=3.0.7-1~trusty
 
 VOLUME ["/fiddle"]
 CMD ["/run.sh"]

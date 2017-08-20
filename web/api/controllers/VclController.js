@@ -12,18 +12,13 @@ var url = require('url');
 
 const defaultVcl = 'vcl 4.0; backend default { .host = "www.vclfiddle.net"; .port = "80"; }';
 const defaultHar = "curl http://www.vclfiddle.net --header 'User-Agent: vclFiddle'";
-const defaultImage = 'varnish5_1_2';
+const defaultImage = 'varnish5_1_3';
 const supportedImages = {
-  'varnish5_1_2': 'Varnish 5.1.2',
+  'varnish5_1_3': 'Varnish 5.1.3',
   'varnish5_0_0': 'Varnish 5.0.0',
-  'varnish5_0_0beta': 'Varnish 5.0.0 Beta',
-  'varnish4_1_3': 'Varnish 4.1.3',
-  'varnish4_1_2': 'Varnish 4.1.2',
-  'varnish4_1_1': 'Varnish 4.1.1',
-  'varnish4_1_0': 'Varnish 4.1.0',
-  'varnish4_0_3': 'Varnish 4.0.3',
-  'varnish4_0_2': 'Varnish 4.0.2',
-  'varnish3': 'Varnish 3.0.6',
+  'varnish4_1_8': 'Varnish 4.1.8',
+  'varnish4_0_5': 'Varnish 4.0.5',
+  'varnish3': 'Varnish 3.0.7',
   'varnish2': 'Varnish 2.1.5',
 };
 

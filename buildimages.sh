@@ -1,11 +1,9 @@
 #!/bin/bash +xe
 
-images="varnish4_1_3
-varnish4_1_2
-varnish4_1_1
-varnish4_1_0
-varnish4_0_3
-varnish4_0_2
+images="varnish5_1_3
+varnish5_0_0
+varnish4_1_8
+varnish4_0_5
 varnish3
 varnish2"
 

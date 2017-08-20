@@ -7,11 +7,10 @@ RUN apt-get update && \
     ca-certificates \
     curl
 
-RUN printf 'deb https://packagecloud.io/varnishcache/varnish5/ubuntu/ trusty main\n' >/etc/apt/sources.list.d/varnish.list && \
-  curl -L https://packagecloud.io/varnishcache/varnish5/gpgkey | apt-key add - && \
+RUN printf 'deb https://packagecloud.io/varnishcache/varnish51/ubuntu/ trusty main\n' >/etc/apt/sources.list.d/varnish.list && \
+  curl -L https://packagecloud.io/varnishcache/varnish51/gpgkey | apt-key add - && \
   apt-get update && \
-  apt-get install --assume-yes --no-install-recommends \
-    varnish=5.1.2-1
+  apt-get install --assume-yes --no-install-recommends varnish
 
 VOLUME ["/fiddle"]
 CMD ["/run.sh"]
