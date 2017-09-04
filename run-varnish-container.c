@@ -1,4 +1,4 @@
-#define SCRIPT_PATH "/opt/vclfiddle/run-varnish-container.pl"
+#define SCRIPT_PATH "/opt/vclfiddle/run-varnish-container.py"
 main(ac, av)
   char **av;
 {
