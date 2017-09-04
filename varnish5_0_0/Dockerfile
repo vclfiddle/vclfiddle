@@ -1,4 +1,4 @@
-FROM ubuntu:14.04.1
+FROM ubuntu:14.04
 MAINTAINER vclfiddle.net <support@vclfiddle.net>
 
 RUN apt-get update
