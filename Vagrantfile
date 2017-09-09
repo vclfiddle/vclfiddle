@@ -9,20 +9,24 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # options are documented and commented below. For a complete reference,
   # please see the online documentation at vagrantup.com.
   #
-  # User: vagrant
-  # Password: vagrant
   #
   # Every Vagrant virtual environment requires a box to build off of.
+  #config.vm.box = "ubuntu/trusty64"
   config.vm.box = "ubuntu/xenial64"
-
-  config.ssh.username = 'vclfiddle'
-  config.ssh.password = 'vclfiddle'
+  config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
 
   config.vm.provision "shell", path: "bootstrap.sh"
 
   config.vm.network "forwarded_port", guest: 1337, host: 31337, auto_correct: true
 
   config.vm.hostname = "vclfiddle.vagrant.local"
+
+  config.vm.provider "virtualbox" do |vbox|
+    vbox.name = "vclfiffle"
+    #vbox.memory = 1024
+    #vbox.cpus = 2
+  end
+
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
