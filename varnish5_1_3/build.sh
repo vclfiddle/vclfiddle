@@ -6,4 +6,4 @@ popd >/dev/null
 
 IMAGE=$(basename "${SCRIPTROOT}/")
 
-sudo docker build --force-rm --tag="${IMAGE}" $SCRIPTROOT
+sudo docker build --force-rm --tag="${IMAGE}:latest" $SCRIPTROOT
