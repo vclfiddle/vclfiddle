@@ -2,6 +2,8 @@
 
 SCRIPTROOT=/vagrant
 
+#echo "ubuntu:ubuntu" | sudo chpasswd
+
 # install docker
 if ! command -v docker >/dev/null; then
   curl -sSL https://get.docker.com/ | sudo sh
@@ -14,7 +16,7 @@ fi
 
 # install nodejs
 if ! command -v npm >/dev/null; then
-  curl -sL https://deb.nodesource.com/setup | sudo bash -
+  curl -sL https://deb.nodesource.com/setup_4.x | sudo bash -
   sudo apt-get install --assume-yes nodejs
 fi
 
@@ -39,10 +41,10 @@ $SCRIPTROOT/varnish2/build.sh
 sudo apt-get install --assume-yes gcc
 sudo mkdir --parents /opt/vclfiddle/
 sudo gcc $SCRIPTROOT/run-varnish-container.c -o /opt/vclfiddle/run-varnish-container
-sudo cp $SCRIPTROOT/run-varnish-container.pl /opt/vclfiddle/run-varnish-container.pl
+sudo cp $SCRIPTROOT/run-varnish-container.py /opt/vclfiddle/run-varnish-container.py
 sudo chown root:root /opt/vclfiddle/run-varnish-container*
 sudo chmod 04755 /opt/vclfiddle/run-varnish-container
-sudo chmod 755 /opt/vclfiddle/run-varnish-container.pl
+sudo chmod 755 /opt/vclfiddle/run-varnish-container.py
 
 # TODO install nginx on port 80 to proxy to sails 1337
 
