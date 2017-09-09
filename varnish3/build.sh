@@ -4,4 +4,6 @@ pushd $(dirname $0) >/dev/null || exit $?
 SCRIPTROOT=$(pwd)
 popd >/dev/null
 
-sudo docker build --force-rm --tag="varnish3" $SCRIPTROOT
+IMAGE=$(basename "${SCRIPTROOT}/")
+
+sudo docker build --force-rm --tag="${IMAGE}:latest" $SCRIPTROOT
