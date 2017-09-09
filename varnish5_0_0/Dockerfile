@@ -1,11 +1,51 @@
-FROM ubuntu:14.04
-MAINTAINER vclfiddle.net <support@vclfiddle.net>
+FROM ubuntu:16.04
+LABEL maintainer "vclfiddle.net <support@vclfiddle.net>"
 
-RUN apt-get update
-RUN apt-get install --assume-yes wget
-RUN wget https://repo.varnish-cache.org/pkg/5.0.0/varnish_5.0.0-1_amd64.deb -O /tmp/varnish_5.0.0-1_amd64.deb
-RUN apt-get install --assume-yes libedit2=3.1-20130712-2 libjemalloc1=3.5.1-2 gcc libc6-dev libc-dev linux-libc-dev
-RUN dpkg -i /tmp/varnish_5.0.0-1_amd64.deb && apt-get install -f
+RUN apt-get update && \
+  apt-get install --assume-yes --no-install-recommends \
+    automake \
+    apt-transport-https \
+    apt-utils \
+    build-essential \
+    ca-certificates \
+    curl \
+    gcc \
+    libc6-dev \
+    libc-dev \
+    linux-libc-dev \
+    libedit-dev \
+    libjemalloc-dev \
+    libncurses-dev \
+    libpcre3-dev \
+    libtool \
+    netcat \
+    pkg-config \
+    python-docutils \
+    wget \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
+
+# Install Varnish from source, so that Varnish modules can be compiled and installed.
+ENV VARNISH_VERSION=5.0.0
+ENV VARNISH_SHA256SUM=5101ad72b29d288a07e2e5ded4c2abe850b70ff000c13ceb1764625e83823f4a
+
+RUN apt-get update && \
+  mkdir -p /usr/local/src && \
+  cd /usr/local/src && \
+  curl -sfLO http://varnish-cache.org/_downloads/varnish-$VARNISH_VERSION.tgz && \
+  echo "${VARNISH_SHA256SUM} varnish-$VARNISH_VERSION.tgz" | sha256sum -c - && \
+  tar -xzf varnish-$VARNISH_VERSION.tgz && \
+  cd varnish-$VARNISH_VERSION && \
+  ./autogen.sh && \
+  ./configure && \
+  make install && \
+  ldconfig && \
+  rm ../varnish-$VARNISH_VERSION.tgz && \
+  mkdir /etc/varnish
+
+ADD ./secret /etc/varnish/secret
+
+RUN chmod 600 /etc/varnish/secret
 
 VOLUME ["/fiddle"]
 CMD ["/run.sh"]
