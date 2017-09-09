@@ -1,9 +1,9 @@
 #!/bin/bash
 
 pushd $(dirname $0) >/dev/null || exit $?
-SCRIPTROOT=$(pwd)
+scriptroot=$(pwd)
 popd >/dev/null
 
-IMAGE=$(basename "${SCRIPTROOT}/")
+image=$(basename "${scriptroot}/")
 
-sudo docker build --force-rm --tag="${IMAGE}" $SCRIPTROOT
+sudo docker build --force-rm --tag="${image}:latest" $scriptroot

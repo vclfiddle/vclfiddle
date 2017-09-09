@@ -6,7 +6,7 @@ function debuglog {
 
 function varnishcommand {
   debuglog "Executing Varnish command: $@"
-  /usr/bin/varnishadm -T 127.0.0.1:6082 -S /etc/varnish/secret $@ >/tmp/varnishcommand.log 2>>/fiddle/run.log ||
+  /usr/local/bin/varnishadm -T 127.0.0.1:6082 -S /etc/varnish/secret $@ >/tmp/varnishcommand.log 2>>/fiddle/run.log ||
     { EXITCODE=$?; cat /tmp/varnishcommand.log >>/fiddle/run.log; exit $EXITCODE; }
   debuglog "Executed Varnish command: $@"
 }
@@ -20,7 +20,7 @@ function executerequest {
 }
 
 debuglog "Starting varnishd"
-/usr/sbin/varnishd -a 127.0.0.1:80 -b 127.0.0.1:8080 -T 127.0.0.1:6082 -S /etc/varnish/secret -P /run/varnishd.pid -p vsl_mask=+VCL_trace,-WorkThread,-Hash 2>&1 >>/fiddle/run.log || exit $?
+/usr/local/sbin/varnishd -a 127.0.0.1:80 -b 127.0.0.1:8080 -T 127.0.0.1:6082 -S /etc/varnish/secret -P /run/varnishd.pid -p vsl_mask=+VCL_trace,-WorkThread,-Hash 2>&1 >>/fiddle/run.log || exit $?
 debuglog "Started varnishd"
 
 varnishcommand vcl.load fiddle /fiddle/default.vcl
