@@ -20,6 +20,10 @@ if ! command -v npm >/dev/null; then
   sudo apt-get install --assume-yes nodejs
 fi
 
+if ! command -v node-gyp >/dev/null; then
+    sudo apt-get install --assume-yes node-gyp
+fi
+
 # install sails.js
 if ! command -v sails >/dev/null; then
   sudo npm install --global sails@0.10.5
