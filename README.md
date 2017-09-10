@@ -41,9 +41,12 @@ instance and in return you get an unprocessed Varnishlog output.
 
 You can find the documentation for VCL for each Varnish version here:
 
-* [Varnish 4.0](https://www.varnish-cache.org/docs/4.0/reference/vcl.html)
-* [Varnish 3.0](https://www.varnish-cache.org/docs/3.0/reference/vcl.html)
-* [Varnish 2.1](https://www.varnish-cache.org/docs/2.1/reference/vcl.html)
+* [Documentation for the latest release 5.1](https://www.varnish-cache.org/docs/5.1/reference/vcl.html)
+* [Documentation for 5.0](https://www.varnish-cache.org/docs/5.0/reference/vcl.html)
+* [Documentation for the stable release 4.1](https://www.varnish-cache.org/docs/4.1/reference/vcl.html)
+* [Documentation for the deprecated release 4.0](https://www.varnish-cache.org/docs/4.0/reference/vcl.html)
+* [Documentation for old version 3.0 (unsupported)](https://www.varnish-cache.org/docs/3.0/reference/vcl.html)
+* [Documentation for older version 2.1 (unsupported)](https://www.varnish-cache.org/docs/2.1/reference/vcl.html)
 
 VclFiddle currently pre-fills the VCL editor with the minimum required for
 Varnish 4.0. If you choose another Varnish version instead you will need to
