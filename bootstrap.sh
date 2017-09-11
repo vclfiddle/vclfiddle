@@ -39,7 +39,8 @@ $SCRIPTROOT/varnish5_0_0/build.sh
 $SCRIPTROOT/varnish4_1_8/build.sh
 $SCRIPTROOT/varnish4_0_5/build.sh
 $SCRIPTROOT/varnish3/build.sh
-$SCRIPTROOT/varnish2/build.sh
+$SCRIPTROOT/varnish2_1_5/build.sh
+$SCRIPTROOT/varnish2_0_6/build.sh
 
 # install the setuid run-varnish-container script
 sudo apt-get install --assume-yes gcc

@@ -19,7 +19,8 @@ const supportedImages = {
   'varnish4_1_8': 'Varnish 4.1.8',
   'varnish4_0_5': 'Varnish 4.0.5',
   'varnish3': 'Varnish 3.0.7',
-  'varnish2': 'Varnish 2.1.5',
+  'varnish2_1_5': 'Varnish 2.1.5',
+  'varnish2_0_6': 'Varnish 2.0.6',
 };
 
 function completeRun(err, fiddle, allRequests) {

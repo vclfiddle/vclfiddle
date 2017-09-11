@@ -5,7 +5,8 @@ varnish5_0_0
 varnish4_1_8
 varnish4_0_5
 varnish3
-varnish2"
+varnish2_1_5
+varnish2_0_6"
 
 while read -r image; do
     image_path="$(dirname $0)/${image}"
