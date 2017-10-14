@@ -2,7 +2,9 @@
 
 SCRIPTROOT=/vagrant
 
-#echo "ubuntu:ubuntu" | sudo chpasswd
+echo "ubuntu:ubuntu" | sudo chpasswd
+sudo adduser --disabled-password --gecos "" vagrant
+sudo adduser vagrant adm
 
 # install docker
 if ! command -v docker >/dev/null; then
@@ -61,5 +63,5 @@ sudo mkdir --parents /var/lib/vclfiddle/
 sudo chown vagrant:adm /var/lib/vclfiddle/
 sudo chmod 0775 /var/lib/vclfiddle/
 
-#sudo rsync -av /vagrant/web/ /var/web/ && cd /var/web && sudo npm install && npm test
-#sudo rsync -av /vagrant/web/ /var/web/ && cd /var/web && node app.js
+sudo rsync -av /vagrant/web/ /var/web/ && cd /var/web && sudo npm install && npm test
+sudo rsync -av /vagrant/web/ /var/web/ && cd /var/web && node app.js
