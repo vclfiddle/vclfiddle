@@ -14,5 +14,5 @@ RUN printf 'deb https://packagecloud.io/varnishcache/varnish5/ubuntu/ trusty mai
     varnish=5.2.1-*
 
 VOLUME ["/fiddle"]
-CMD ["/run.sh"]
+CMD ["/bin/bash", "/run.sh"]
 ADD run.sh /run.sh
