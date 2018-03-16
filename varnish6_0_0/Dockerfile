@@ -16,5 +16,5 @@ RUN printf 'deb https://packagecloud.io/varnishcache/varnish60/ubuntu/ xenial ma
 RUN apt-get install --assume-yes --no-install-recommends netcat-openbsd
 
 VOLUME ["/fiddle"]
-CMD ["/run.sh"]
+CMD ["/bin/bash", "/run.sh"]
 ADD run.sh /run.sh
