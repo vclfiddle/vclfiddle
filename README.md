@@ -1,4 +1,4 @@
-#VclFiddle
+# VclFiddle
 
 VclFiddle is an online tool for experimenting with the
 [Varnish Cache](https://www.varnish-cache.org/) HTTP reverse-proxy in a
@@ -94,7 +94,7 @@ be displayed. These results will be the raw varnishlog applicable to your chosen
 Varnish version and a summary of the HTTP response headers and cache hit/miss
 status for each request.
 
-##Contributors
+## Contributors
 
 VclFiddle was started by [Jason Stangroome](https://twitter.com/jstangroome) and
 [Daniel Bartholomew](https://twitter.com/dbartholomew) as an opportunity to
@@ -105,7 +105,7 @@ VclFiddle is licensed under the Apache License 2.0 and contributions are
 welcome via pull request. There are a number of existing issues available to
 work on, and other new ideas and feedback is appreciated.
 
-##Direction
+## Direction
 
 VclFiddle is in its very early stages of life and its future development will
 depend upon how it gets used. However our current plans include:
@@ -117,7 +117,7 @@ depend upon how it gets used. However our current plans include:
 You can add comments to existing issues, or submit new issues, to let us know
 how you would like VclFiddle to evolve.
 
-##How It Works
+## How It Works
 
 VclFiddle consists of a Node.js web application, built with the Sails.js MVC
 framework. It is currently hosted with PM2, behind an NGINX proxy.
@@ -142,7 +142,7 @@ When the Docker container is done, the web application parses the files
 saved into the working directory and makes the information available to the
 user.
 
-##Supporting more Varnish versions
+## Supporting more Varnish versions
 
 VclFiddle currently only supports Varnish 4.0 as provided by the public
 Varnish Cache package repository. Support for other Varnish versions, or
