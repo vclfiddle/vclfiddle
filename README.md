@@ -1,4 +1,7 @@
-#VclFiddle
+# VclFiddle
+
+> **Warning**
+> https://www.vclfiddle.net/ will soon become unavailable. Please contact the authors if you have questions.
 
 VclFiddle is an online tool for experimenting with the
 [Varnish Cache](https://www.varnish-cache.org/) HTTP reverse-proxy in a
